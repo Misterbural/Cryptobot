@@ -166,7 +166,8 @@ return [
 
         /*
          * Package Service Providers...
-         */
+	 */
+	Pepijnolivier\Bittrex\BittrexServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -224,7 +225,8 @@ return [
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View' => Illuminate\Support\Facades\View::class,
+	'View' => Illuminate\Support\Facades\View::class,
+	'Bittrex' => Pepijnolivier\Bittrex\Bittrex::class,
 
     ],
 

@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'CryptoBot'),
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://cryptobot.loc'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'fr',
 
     /*
     |--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'fr',
 
     /*
     |--------------------------------------------------------------------------
@@ -124,6 +124,7 @@ return [
     'log' => env('APP_LOG', 'single'),
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -166,8 +167,8 @@ return [
 
         /*
          * Package Service Providers...
-	 */
-	Pepijnolivier\Bittrex\BittrexServiceProvider::class,
+        */
+        Pepijnolivier\Bittrex\BittrexServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -225,9 +226,8 @@ return [
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
-	'View' => Illuminate\Support\Facades\View::class,
-	'Bittrex' => Pepijnolivier\Bittrex\Bittrex::class,
-
+        'View' => Illuminate\Support\Facades\View::class,
+        'Bittrex' => Pepijnolivier\Bittrex\Bittrex::class,
     ],
 
 ];

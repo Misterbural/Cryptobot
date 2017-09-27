@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Business\BusinessCandle;
+use App\Candle_5m;
 use Bittrex;
 
 class CollectMarketData extends Command
@@ -88,7 +89,6 @@ class CollectMarketData extends Command
                     $businessCandle->compute_candle_1m($market, $transactions);
                 }
             }
-            echo(" new candles \n");
             
 
             foreach ($marketData as $market) {
@@ -101,7 +101,19 @@ class CollectMarketData extends Command
                 }
                 
             }
+            
             $marketData = array();
+
+            if ($last_candle->format('i') % 5 != 4) {
+                continue;
+            }
+
+            $last_candle->setTime($last_candle->format('H'), $last_candle->format('i'), 59);
+
+            foreach ($this->currencies as $market) {
+                $businessCandle->compute_candles_with_interval("BTC-" . $market, $last_candle, 5);
+            }
+
         }
     }
 

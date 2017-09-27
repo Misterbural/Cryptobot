@@ -13,7 +13,44 @@ return [
     |
     */
 
-    'currencies' => array('LTC', 'XVG', 'NXS', 'PTOY', 'OMG', 'ETH', 'ETC', 'NEO', 'STRAT', 'PAY'),
+    'currencies' => array(
+        'LTC',
+        'XVG',
+        'NXS',
+        'PTOY',
+        'OMG',
+        'ETH',
+        'ETC',
+        'NEO',
+        'STRAT',
+        'PAY',
+        'ZEC',
+        'QTUM',
+        'SNT',
+        'NXC',
+        'LSK',
+        'XMR',
+        'DASH',
+        'BAT',
+        'MCO',
+        'BCC',
+        'WAVES',
+        'RDD',
+        'GAME',
+        'ARK',
+        'BAY',
+        'TRUST',
+        'EBST',
+        'XRP',
+        'ADX',
+        'EDG',
+        'NAV',
+        'SC',
+        'PIVX',
+        'UBQ',
+        'GNT',
+        'COVAL'
+    ),
 
 
 ];

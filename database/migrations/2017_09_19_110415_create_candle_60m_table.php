@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCandle1hTable extends Migration
+class CreateCandle60mTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateCandle1hTable extends Migration
      */
     public function up()
     {
-        Schema::create('candles_1h', function (Blueprint $table) {
+        Schema::create('candles_60m', function (Blueprint $table) {
             $table->increments('id');
             $table->double('open_price', 14, 8);
             $table->double('close_price', 14, 8);
@@ -34,6 +34,6 @@ class CreateCandle1hTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('candle_1h');
+        Schema::dropIfExists('candle_60m');
     }
 }

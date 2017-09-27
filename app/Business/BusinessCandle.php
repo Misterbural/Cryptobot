@@ -13,7 +13,7 @@ use App\Candle_1m;
 use App\Candle_5m;
 use App\Candle_15m;
 use App\Candle_30m;
-use App\Candle_1h;
+use App\Candle_60m;
 
 class BusinessCandle {
 
@@ -80,28 +80,35 @@ class BusinessCandle {
 
 		$candle->save();
 
-		//si on fini un bloc de 5 minutes, on génère le candle de 5 minutes
-		//Méthode bancale si pas de transaction sur la dernieres minutes
-		if ($close_time->format('i') % 5 == 4) {
-			$this->compute_candle_5m($market);
-		}
-
 		return true;
 	}
 
-	private function compute_candle_5m($market)
+	public function compute_candles_with_interval($market, $close_time, $interval)
 	{
-		$candles_1m = Candle_1m::where('currencies', $market)->orderBy('id', 'desc')->take(5)->get();
+		//condition mauvaise pas obligatoirement 5 candles dans les 5 dernieres minutes
+		$open_time = clone($close_time);
+		$submin = $interval - 1;
+		$open_time->sub(new \DateInterval("PT" . $submin . "M"));
+		$open_time->setTime($open_time->format('H'), $open_time->format('i'), 0);
+
+		$candles = Candle_1m::where('currencies', $market)
+		->where('open_time', '>=', $open_time)
+		->where('close_time', '<=', $close_time)
+		->get();
+
+		if (!count($candles)) {
+			return false;
+		}
 		
 		$volume = 0;
-		$min_price = $candles_1m[0]->min_price;
-		$max_price = $candles_1m[0]->max_price;
-		$open_price = $candles_1m[0]->open_price;
-		$close_price = $candles_1m[0]->close_price;
-		$open_time = \DateTime::createFromFormat('Y-m-d H:i:s', $candles_1m[0]->open_time);
-		$close_time = \DateTime::createFromFormat('Y-m-d H:i:s',$candles_1m[0]->close_time);
+		$min_price = $candles[0]->min_price;
+		$max_price = $candles[0]->max_price;
+		$open_price = $candles[0]->open_price;
+		$close_price = $candles[0]->close_price;
+		$open_time_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $candles[0]->open_time);
+		$close_time_tmp = \DateTime::createFromFormat('Y-m-d H:i:s', $candles[0]->close_time);
 
-		foreach ($candles_1m as $candle) {
+		foreach ($candles as $candle) {
 			
 			$volume += $candle->volume;
 
@@ -114,20 +121,22 @@ class BusinessCandle {
 			}
 
 			$candle_open_datetime = \DateTime::createFromFormat('Y-m-d H:i:s', $candle->open_time);
-			if ($candle_open_datetime->format("Y-m-d H:i:s") < $open_time->format("Y-m-d H:i:s")) {
-				$open_time = $candle_open_datetime;
+			if ($candle_open_datetime->format("Y-m-d H:i:s") < $open_time_tmp->format("Y-m-d H:i:s")) {
+				$open_time_tmp = $candle_open_datetime;
 				$open_price = $candle->open_price;
 			}
 
 			$candle_close_datetime = \DateTime::createFromFormat('Y-m-d H:i:s', $candle->close_time);
-			if ($candle_close_datetime->format("Y-m-d H:i:s") > $close_time->format("Y-m-d H:i:s")) {
-				$close_time = $candle_close_datetime;
+			if ($candle_close_datetime->format("Y-m-d H:i:s") > $close_time_tmp->format("Y-m-d H:i:s")) {
+				$close_time_tmp = $candle_close_datetime;
 				$close_price = $candle->close_price;
 			}
 
 		}
 
-		$candle = new Candle_5m;
+		$class = "App\Candle_" . $interval . "m";
+
+		$candle = new $class;
 		$candle->open_price = $open_price;
 		$candle->close_price = $close_price;
 		$candle->min_price = $min_price;
@@ -138,6 +147,18 @@ class BusinessCandle {
 		$candle->close_time = $close_time;
 
 		$candle->save();
+
+		if ($interval == 5 && $close_time->format('i') % 15 == 14) {
+			$this->compute_candles_with_interval($market, $close_time, 15);
+		}
+
+		if ($interval == 15 && $close_time->format('i') % 30 == 29) {
+			$this->compute_candles_with_interval($market, $close_time, 30);
+		}
+
+		if ($interval == 30 && $close_time->format('i') % 60 == 59) {
+			$this->compute_candles_with_interval($market, $close_time, 60);
+		}
 
 		return true;
 	}

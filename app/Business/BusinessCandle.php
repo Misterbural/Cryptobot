@@ -9,11 +9,11 @@ namespace App\Business;
 * Compute candle from collect market data or analyse candle from db
 */
 
-use App\Candle_1m;
-use App\Candle_5m;
-use App\Candle_15m;
-use App\Candle_30m;
-use App\Candle_60m;
+use App\Models\Candle_1m;
+use App\Models\Candle_5m;
+use App\Models\Candle_15m;
+use App\Models\Candle_30m;
+use App\Models\Candle_60m;
 
 class BusinessCandle {
 

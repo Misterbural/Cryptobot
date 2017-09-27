@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Business\BusinessCandle;
-use App\Candle_5m;
 use Bittrex;
 
 class CollectMarketData extends Command

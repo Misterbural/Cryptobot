@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Business\BusinessCandle;
 use Bittrex;
 
 class CollectMarketData extends Command
@@ -46,6 +47,7 @@ class CollectMarketData extends Command
      */
     public function handle()
     {
+        $businessCandle = new BusinessCandle();
         $market_data = array();
 
         $last_candle = new \DateTime();
@@ -66,14 +68,12 @@ class CollectMarketData extends Command
                 
                 $market = "BTC-" . $currency;
                 $historic = Bittrex::getMarketHistory($market);
-                var_dump(count($historic['result']));
 
                 foreach ($historic['result'] as $trade) {
 
-                    //Vérifier H-2
                     $trade_date = \DateTime::createFromFormat('Y-m-d\TH:i:s', substr($trade['TimeStamp'], 0, 19));
 
-                    if ($trade_date->format("Y-m-d H:i") > $last_full_min->format("Y-m-d H:i") && $trade_date->format("Y-m-d H:i") <= $last_candle->format("Y-m-d H:i")) {
+                    if ($trade_date->format("Y-m-d H:i") > $last_full_min->format("Y-m-d H:i") || $trade_date->format("Y-m-d H:i") <= $last_candle->format("Y-m-d H:i")) {
                         continue;
                     }
 
@@ -81,9 +81,14 @@ class CollectMarketData extends Command
                 }
             }
             
-            //Envoyer a Candles pour les générer (via worker ??)
-            //Quand le candle est calculé, vérifier si dernier d'un block de 5, 15, 30, 60 min pour calculer 
-            echo("new candles \n");
+            foreach ($marketData as $market => $candles) {
+
+                foreach ($candles as $date => $transactions) {
+                    
+                    $businessCandle->compute_candle_1m($market, $transactions);
+                }
+            }
+            echo(" new candles \n");
             
 
             foreach ($marketData as $market) {

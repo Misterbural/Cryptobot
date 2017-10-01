@@ -18,12 +18,13 @@ use App\Models\Candle_60m;
 class BusinessCandle {
 
 	/**
-     * @param array list of transaction
+	 * @param string $market : currency of candle
+     * @param array $transactions : list of transaction
      *
      * @return boolean
      * 
      */
-	public function compute_candle_1m($market, $transactions = array())
+	public function compute_candle_1m ($market, $transactions = array())
 	{
 		$volume = 0;
 
@@ -83,7 +84,15 @@ class BusinessCandle {
 		return true;
 	}
 
-	public function compute_candles_with_interval($market, $close_time, $interval)
+	/**
+	 * @param string $market : currency of candle
+	 * @param datetime $close_time : date end of candle
+     * @param int $intervel : duration of candle
+     *
+     * @return boolean
+     * 
+     */
+	public function compute_candles_with_interval ($market, $close_time, $interval)
 	{
 		//condition mauvaise pas obligatoirement 5 candles dans les 5 dernieres minutes
 		$open_time = clone($close_time);

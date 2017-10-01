@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Business;
+
+/**
+* Class Wallet
+* @package App\Business
+*
+* Update Wallet
+*/
+
+
+class BusinessWallet {
+
+	public function update_wallet ($transaction)
+	{
+		
+	}
+
+}

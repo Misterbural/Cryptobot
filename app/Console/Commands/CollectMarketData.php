@@ -67,7 +67,13 @@ class CollectMarketData extends Command
             foreach ($this->currencies as $currency) {
                 
                 $market = "BTC-" . $currency;
-                $historic = Bittrex::getMarketHistory($market);
+
+                try {
+                    $historic = Bittrex::getMarketHistory($market);
+                } catch (\Exception $e) {
+                    continue;
+                }
+                
 
                 foreach ($historic['result'] as $trade) {
 
@@ -115,25 +121,4 @@ class CollectMarketData extends Command
 
         }
     }
-
-    /**
-    *public function handle()
-    *{
-    *    $market_data = array();
-    *    
-    *    while(true) {
-    *
-    *        foreach ($this->currencies as $currency) {
-    *            
-    *            $market = "BTC-" . $currency;
-    *            $tickers = Bittrex::getChartData($market, 'oneMin');
-    *            var_dump($tickers);die();
-    *
-    *            foreach ($tickers['result'] as $ticker) {
-    *                
-    *            }
-    *        }
-    *    }
-    *}
-    */
 }

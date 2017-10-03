@@ -143,7 +143,7 @@ class BusinessCandle {
 
 		}
 
-		$class = "App\Candle_" . $interval . "m";
+		$class = "App\Models\Candle_" . $interval . "m";
 
 		$candle = new $class;
 		$candle->open_price = $open_price;

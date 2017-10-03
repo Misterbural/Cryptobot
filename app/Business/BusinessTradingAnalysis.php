@@ -12,5 +12,8 @@ namespace App\Business;
 
 class BusinessTradingAnalysis {
 
+	public function atr($market, $data)
+	{
 
+	}
 }

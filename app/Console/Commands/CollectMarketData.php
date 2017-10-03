@@ -64,13 +64,15 @@ class CollectMarketData extends Command
                 continue;
             }
 
-            foreach ($this->currencies as $currency) {
+            for ($i = 0; $i < count($this->currencies); $i++) {                
                 
+                $currency = $this->currencies[$i];
                 $market = "BTC-" . $currency;
 
                 try {
                     $historic = Bittrex::getMarketHistory($market);
                 } catch (\Exception $e) {
+                    $i--;
                     continue;
                 }
                 

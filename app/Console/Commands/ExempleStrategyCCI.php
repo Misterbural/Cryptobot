@@ -69,19 +69,20 @@ class ExempleStrategyCCI extends Command
 
                 $data_cci = array();
                 $market = 'BTC-' . $currency;
+               
 
                 $limit_date = new \DateTime();
-                $limit_date->sub(new \DateInterval("PT" . $period + 1. "M"));
+                $limit_date->sub(new \DateInterval("PT" . $period . "M"));
                 $limit_date->setTime($limit_date->format('H'), $limit_date->format('i'), 0);
 
                 $candles = DB::table('candles_1m')->where('currencies', $market)->where('open_time', '>=', $limit_date)->get();
-
-                $prev_candle = $candes[0];
+                $prev_candle = $candles[0];
                 $last_candle_theoric = new \DateTime();
                 $last_candle_theoric->sub(new \DateInterval("PT1M"));
                 $last_candle_theoric->setTime($last_candle_theoric->format('H'), $last_candle_theoric->format('i'), 0);
 
-                
+                //Generate candle begin of period if doesn't exist
+
                 foreach ($candles as $candle) {
                     
                     $date_candle = new \DateTime($candle->open_time);
@@ -108,16 +109,18 @@ class ExempleStrategyCCI extends Command
 
                 $nb_missing_last_candle = $date_prev_candle->diff($last_candle_theoric);
 
-                for ($i = 0; $i < $nb_missing_last_candle; $i++) {
+                for ($i = 0; $i < $nb_missing_last_candle->i; $i++) {
                     $data_cci['high'][] = $prev_candle->max_price;
                     $data_cci['low'][] = $prev_candle->min_price;
                     $data_cci['close'][] = $prev_candle->close_price;
                 }
+                
+                $cci = $trading_analysis->cci($market, $data_cci);
 
                 switch ($assets_status[$currency]) {
                     case 'waiting_buy':
 
-                        if ($trading_analysis->cci($market, $data_cci) > -100) {
+                        if ($cci > -100) {
                             break;
                         }
 
@@ -126,19 +129,23 @@ class ExempleStrategyCCI extends Command
                         break;
 
                     case 'under_neg_100':
-
-                        if ($trading_analysis->cci($market, $data_cci) < -100) {
+                    
+                        if ($cci < -100) {
                             break;
                         }
                         
-                        if ($this->buy($currency)) {
-                            $assets_status[$currency] = 'waiting_sell';
+                        if ($cci > 0) {
+                            $assets_status[$currency] = 'waiting_buy';
+                            break;
                         }
+                        
+                        $assets_status[$currency] = 'waiting_sell';
+                        $this->buy($currency);
                         break;
 
                     case 'waiting_sell':
 
-                        if ($trading_analysis->cci($market, $data_cci) < 100) {
+                        if ($cci < 100) {
                             break;
                         }
 
@@ -147,7 +154,7 @@ class ExempleStrategyCCI extends Command
                         break;
                     case 'over_pos_100':
                         
-                        if ($trading_analysis->cci($market, $data_cci) > 100) {
+                        if ($cci > 100) {
                             break;
                         }
 
@@ -158,6 +165,7 @@ class ExempleStrategyCCI extends Command
                     
                 }
             }
+            sleep(20);
         }
     }
 
@@ -172,7 +180,7 @@ class ExempleStrategyCCI extends Command
         }
         
         $rate = $ticker["result"]["Ask"];
-        $quantity_crypto = 0.05 * $rate;
+        $quantity_crypto = 0.05 / $rate;
 
         $fees = $transaction->compute_fees('buy', $quantity_crypto, $rate);
         $sum = $rate * $quantity_crypto + $fees;
@@ -200,12 +208,12 @@ class ExempleStrategyCCI extends Command
         
         $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         
-        $sum = $rate * $quantity - $fees;
+        $sum = $rate * $quantity->available - $fees;
 
         $wallet->register_buy('BTC', $sum, 0.05);
-        $wallet->register_sell($currency, $quantity);
+        $wallet->register_sell($currency, $quantity->available);
 
-        Log::info($currency . " : break +100 -> sell " . $quantity . " for " . $sum . " BTC fees already paid (" . $fees . " BTC)");
+        Log::info($currency . " : break +100 -> sell " . $quantity->available . " for " . $sum . " BTC fees already paid (" . $fees . " BTC)");
 
         return true;
     }

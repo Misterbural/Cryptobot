@@ -9,7 +9,7 @@ namespace App\Brokers;
 * Broker wrapper interface
 */
 
-class InterfaceBroker {
+interface InterfaceBroker {
 
     /**
      * Place an order buy

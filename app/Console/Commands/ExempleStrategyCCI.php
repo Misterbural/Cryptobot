@@ -53,7 +53,6 @@ class ExempleStrategyCCI extends Command
     public function handle()
     {
         $trading_analysis = new BusinessTradingAnalysis();
-        $wallet = new BusinessWallet();
         
         $period = 14;
         $assets_status = array();
@@ -132,13 +131,14 @@ class ExempleStrategyCCI extends Command
     private function buy ($currency) {
         
         $bittrex = new BusinessBittrex('test cci');
+        $wallet = new BusinessWallet();
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {
             return false;
         }
         
-        $rate = $ticker["result"]["Last"];
+        $rate = $ticker["result"]["Ask"];
         $quantity_crypto = 0.05 * $rate;
 
         $fees = $bittrex->compute_fees('buy', $quantity_crypto, $rate);
@@ -155,13 +155,14 @@ class ExempleStrategyCCI extends Command
     private function sell ($currency) {
         
         $bittrex = new BusinessBittrex('test cci');
+        $wallet = new BusinessWallet();
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {
             return false;
         }
 
-        $rate = $ticker["result"]["Last"];
+        $rate = $ticker["result"]["Bid"];
         $quantity = DB::table('wallets')->select('available')->where('currency', $currency)->first();
         
         $fees = $bittrex->compute_fees('sell', $quantity, $rate);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Business;
+namespace App\Brokers;
 
 /**
 * Class Candle
@@ -10,20 +10,10 @@ namespace App\Business;
 * Place or cancel orders and insert datas in cryptobot tables
 */
 
+use App\Brokers\InterfaceBroker;
 use Pepijnolivier\Bittrex\Bittrex;
 
-class BusinessBittrex {
-
-    public $strategy;
-
-    /**
-     * Constructeur
-     * @param string $strategy : Name of strategy invoking class
-     */
-    public _construct ($strategy = 'unknown')
-    {
-        $this->strategy = $strategy;
-    }
+class BrokerBittrex implements InterfaceBroker {
 
     /**
      * Place an order buy
@@ -98,24 +88,24 @@ class BusinessBittrex {
     /**
      * Cancel an order
      * @param string $order_id : The id of the order to cancel
-     * @return mixed : false if fail, true else
+     * @return mixed array|bool : false if fail, else array return by get_order
      */
     public function cancel ($order_id)
     {
-        $result = Bittrex::cancelOrder($market, $quantity, $rate);
+        $cancel = $this->cancelOrder($market, $quantity, $rate);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return true;
+        return $this->get_order($order_id);
     }
 
     /**
      * Get an order
      * @param string $order_id : The id of the order to get
-     * @return mixed : false if no order, the order else
+     * @return mixed array|bool : false if fail, else array with ['quantity', 'actual_remaining', 'rate', 'actual_rate', 'fees', 'fees_paid', 'date_open', 'open']
      */
     public function get_order ($order_id)
     {
@@ -125,6 +115,17 @@ class BusinessBittrex {
         {
             return false;
         }
+
+        $order = [];
+        
+        $order['quantity'] = $result['result']['Quantity'];
+        $order['actual_quantity'] = $result['result']['Quantity'] - $result['result']['QuantityRemaining'];
+        $order['rate'] = $result['result']['Price'] / $result['result']['Quantity'];
+        $order['actual_rate'] = $result['result']['PricePerUnit'];
+        $order['fees'] = $result['result']['CommissionReserved'];
+        $order['actual_fees'] = $result['result']['CommissionPaid'];
+        $order['date_open'] = $result['result']['Opened'];
+        $order['open'] = $result['result']['IsOpen'] ? true : false;
 
         return $result['result'];
     }
@@ -136,8 +137,56 @@ class BusinessBittrex {
      * @param float $quantity : Quantity to buy or sell
      * @param float $rate : Rate of buying
      */
-    private function compute_fees ($type, $quantity, $rate)
+    public function compute_fees ($type, $quantity, $rate)
     {
         return $quantity * $rate * 0.25 / 100;
+    }
+    
+    /**
+     * Get last transaction rate for market
+     * @param string $market : The market we want rate
+     */
+    public function get_market_last_rate ($market)
+    {
+        $result = Bittrex::getTicker($market);
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        return $result['result']['Last'];
+    }
+    
+    /**
+     * Get ask transaction rate for market
+     * @param string $market : The market we want rate
+     */
+    public function get_market_ask_rate ($market)
+    {
+        $result = Bittrex::getTicker($market);
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        return $result['result']['Ask'];
+    }
+    
+    /**
+     * Get bid transaction rate for market
+     * @param string $market : The market we want rate
+     */
+    public function get_market_bid_rate ($market)
+    {
+        $result = Bittrex::getTicker($market);
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        return $result['result']['Bid'];
     }
 }

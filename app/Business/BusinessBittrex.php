@@ -20,7 +20,7 @@ class BusinessBittrex {
      * Constructeur
      * @param string $strategy : Name of strategy invoking class
      */
-    public _construct ($strategy = 'unknown')
+    public function __construct ($strategy = 'unknown')
     {
         $this->strategy = $strategy;
     }

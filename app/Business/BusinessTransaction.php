@@ -270,4 +270,82 @@ class BusinessTransaction {
     {
         return $this->broker->get_market_bid_rate($market);
     }
+
+    /**
+     * Validate a transaction and 
+     * @param string $order_id : The id of the order to validate
+     * @return bool : True if success, false else
+     */
+    public function validate_transaction ($order_id)
+    {
+        //Get transaction from db
+        $transaction = Transaction::where('order_id', $order_id)->first();
+        if (!$transaction)
+        {
+            return false;
+        }
+        
+        //Try to cancel the order
+        $order = $this->broker::cancelOrder($order_id);
+        if (!$order)
+        {
+            return false;
+        }
+
+        //Maintenant faut faire tout le traitement sur les wallet et les transactions
+        if ($transaction['type'] == 'buy')
+        {
+            //On update la transaction
+            $transaction->quantity = $order['actual_quantity'];
+            $transaction->rate = $order['actual_rate'];
+            $transaction->fees = $order['actual_fees'];
+            $transaction->status = 'close';
+
+            $transaction->save();
+
+
+            //On update le wallet
+            $business_wallet = new BusinessWallet();
+            
+            $market_sell = explode('-', $transaction->currencies)[0];
+            $market_buy = explode('-', $transaction->currencies)[1];
+
+            //Compute sell amount from real quantity, rate and fees
+            $actual_sell_amount = $order['actual_quantity'] * $order['actual_rate'] + $order['actual_fees'];
+            $previsionnal_sell_amount = $order['quantity'] * $order['rate'] + $order['fees'];
+
+            //On update le wallet
+            $business_wallet->register_sell($market_sell, $actual_sell_amount);
+            $business_wallet->untrade($market_sell, $previsionnal_sell_amount);
+            $business_wallet->register_buy($market_buy, $order['actual_quantity']);
+        }
+        elseif ($transaction['type'] == 'sell')
+        {
+            //On update la transaction
+            $transaction->quantity = $order['actual_quantity'];
+            $transaction->rate = $order['actual_rate'];
+            $transaction->fees = $order['actual_fees'];
+            $transaction->status = 'close';
+
+            $transaction->save();
+
+
+            //On update le wallet
+            $business_wallet = new BusinessWallet();
+            
+            $market_buy = explode('-', $transaction->currencies)[0];
+            $market_sell = explode('-', $transaction->currencies)[1];
+
+            //Compute sell amount from real quantity, rate
+            $sell_amount = $order['actual_quantity'] * $order['actual_rate'];
+
+            //On update le wallet
+            $business_wallet->register_sell($market_sell, $sell_amount);
+            $business_wallet->untrade($market_sell, $sell_amount);
+            $business_wallet->register_buy($market_buy, $order['actual_quantity'] - $order['actual_fees']);
+        }
+
+        return true;
+    }
+
 }

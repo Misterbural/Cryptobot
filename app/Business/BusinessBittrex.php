@@ -136,7 +136,7 @@ class BusinessBittrex {
      * @param float $quantity : Quantity to buy or sell
      * @param float $rate : Rate of buying
      */
-    private function compute_fees ($type, $quantity, $rate)
+    public function compute_fees ($type, $quantity, $rate)
     {
         return $quantity * $rate * 0.25 / 100;
     }

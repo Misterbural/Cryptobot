@@ -70,10 +70,10 @@ class ExempleStrategyCCI extends Command
                 $data_cci = array();
                 $market = 'BTC-' . $currency;
 
-                $nb_candles = DB::table('candles_5m')->where('currencies', $market)->count();
+                $nb_candles = DB::table('candles_1m')->where('currencies', $market)->count();
                 $offset = $nb_candles - $period;
 
-                $candles = DB::table('candles_5m')->where('currencies', $market)->orderBy('close_time')->skip($offset)->take($period)->get();
+                $candles = DB::table('candles_1m')->where('currencies', $market)->orderBy('close_time')->skip($offset)->take($period)->get();
                 
                 foreach ($candles as $candle) {
                     $data_cci['high'][] = $candle->max_price;
@@ -163,9 +163,9 @@ class ExempleStrategyCCI extends Command
         }
 
         $rate = $ticker["result"]["Bid"];
-        $quantity = DB::table('wallets')->select('available')->where('currency', $currency)->first();
+        $quantity = DB::table('wallets')->where('currency', $currency)->first();
         
-        $fees = $transaction->compute_fees('sell', $quantity, $rate);
+        $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         
         $sum = $rate * $quantity - $fees;
 

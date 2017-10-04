@@ -53,7 +53,6 @@ class ExempleStrategyCCI extends Command
     public function handle()
     {
         $trading_analysis = new BusinessTradingAnalysis();
-        $bittrex = new BusinessBittrex('test cci');
         $wallet = new BusinessWallet();
         
         $period = 14;
@@ -132,6 +131,7 @@ class ExempleStrategyCCI extends Command
 
     private function buy ($currency) {
         
+        $bittrex = new BusinessBittrex('test cci');
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {
@@ -154,6 +154,7 @@ class ExempleStrategyCCI extends Command
 
     private function sell ($currency) {
         
+        $bittrex = new BusinessBittrex('test cci');
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {

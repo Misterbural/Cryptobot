@@ -31,7 +31,7 @@ class BusinessTransaction {
         $this->broker_name = $broker_name;
         $this->strategy = $strategy;
         
-        $broker_wrapper_name = 'Brokers\\Broker' . str_replace(' ', '', mb_convert_case($broker_name, MB_CASE_TITLE));
+        $broker_wrapper_name = '\\App\\Brokers\\Broker' . str_replace(' ', '', mb_convert_case($broker_name, MB_CASE_TITLE));
         $this->broker = new $broker_wrapper_name();
     }
 
@@ -241,7 +241,7 @@ class BusinessTransaction {
      */
     public function compute_fees ($type, $quantity, $rate)
     {
-        return $this->broker->compute_fees($type, $quantity, $rete);
+        return $this->broker->compute_fees($type, $quantity, $rate);
     }
 
     /**

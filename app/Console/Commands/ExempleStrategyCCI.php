@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Business\BusinessTradingAnalysis;
 use App\Business\BusinessWallet;
-use App\Business\BusinessBittrex;
+use App\Business\BusinessTransaction;
 use Pepijnolivier\Bittrex\Bittrex;
 use Illuminate\Support\Facades\DB;
 use Log;
@@ -130,7 +130,7 @@ class ExempleStrategyCCI extends Command
 
     private function buy ($currency) {
         
-        $bittrex = new BusinessBittrex('test cci');
+        $transaction = new BusinessTransaction('bittrex' ,'test cci');
         $wallet = new BusinessWallet();
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
@@ -141,7 +141,7 @@ class ExempleStrategyCCI extends Command
         $rate = $ticker["result"]["Ask"];
         $quantity_crypto = 0.05 * $rate;
 
-        $fees = $bittrex->compute_fees('buy', $quantity_crypto, $rate);
+        $fees = $transaction->compute_fees('buy', $quantity_crypto, $rate);
         $sum = $rate * $quantity_crypto + $fees;
 
         $wallet->register_sell('BTC', $sum);
@@ -154,7 +154,7 @@ class ExempleStrategyCCI extends Command
 
     private function sell ($currency) {
         
-        $bittrex = new BusinessBittrex('test cci');
+        $transaction = new BusinessTransaction('bittrex' ,'test cci');
         $wallet = new BusinessWallet();
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
@@ -165,7 +165,7 @@ class ExempleStrategyCCI extends Command
         $rate = $ticker["result"]["Bid"];
         $quantity = DB::table('wallets')->select('available')->where('currency', $currency)->first();
         
-        $fees = $bittrex->compute_fees('sell', $quantity, $rate);
+        $fees = $transaction->compute_fees('sell', $quantity, $rate);
         
         $sum = $rate * $quantity - $fees;
 

@@ -241,7 +241,7 @@ class BusinessTransaction {
      */
     public function compute_fees ($type, $quantity, $rate)
     {
-        return $this->broker->compute_fees($type, $quantity, $rete);
+        return $this->broker->compute_fees($type, $quantity, $rate);
     }
 
     /**

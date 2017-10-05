@@ -54,7 +54,7 @@ class ExempleStrategyCCI extends Command
     {
         $trading_analysis = new BusinessTradingAnalysis();
         
-        $period = 14;
+        $period = 20;
         $assets_status = array();
 
         //TODO initialiser assets_status avec transaction db
@@ -69,22 +69,58 @@ class ExempleStrategyCCI extends Command
 
                 $data_cci = array();
                 $market = 'BTC-' . $currency;
+               
 
-                $nb_candles = DB::table('candles_5m')->where('currencies', $market)->count();
-                $offset = $nb_candles - $period;
+                $limit_date = new \DateTime();
+                $limit_date->sub(new \DateInterval("PT" . $period . "M"));
+                $limit_date->setTime($limit_date->format('H'), $limit_date->format('i'), 0);
 
-                $candles = DB::table('candles_5m')->where('currencies', $market)->orderBy('close_time')->skip($offset)->take($period)->get();
-                
+                $candles = DB::table('candles_1m')->where('currencies', $market)->where('open_time', '>=', $limit_date)->get();
+                $prev_candle = $candles[0];
+                $last_candle_theoric = new \DateTime();
+                $last_candle_theoric->sub(new \DateInterval("PT1M"));
+                $last_candle_theoric->setTime($last_candle_theoric->format('H'), $last_candle_theoric->format('i'), 0);
+
+                //Generate candle begin of period if doesn't exist
+
                 foreach ($candles as $candle) {
+                    
+                    $date_candle = new \DateTime($candle->open_time);
+                    $date_prev_candle = new \DateTime($prev_candle->open_time);
+
+                    $diff_date_candles = $date_candle->diff($date_prev_candle);
+
+                    if ($diff_date_candles->i > 1) {
+                        for ($i = 0; $i < $diff_date_candles->i - 1; $i++) {
+                            $data_cci['high'][] = $prev_candle->max_price;
+                            $data_cci['low'][] = $prev_candle->min_price;
+                            $data_cci['close'][] = $prev_candle->close_price;
+                        }
+                    }
+
                     $data_cci['high'][] = $candle->max_price;
                     $data_cci['low'][] = $candle->min_price;
                     $data_cci['close'][] = $candle->close_price;
+
+                    $prev_candle = $candle;
                 }
+
+                $date_prev_candle = new \DateTime($prev_candle->open_time);
+
+                $nb_missing_last_candle = $date_prev_candle->diff($last_candle_theoric);
+
+                for ($i = 0; $i < $nb_missing_last_candle->i; $i++) {
+                    $data_cci['high'][] = $prev_candle->max_price;
+                    $data_cci['low'][] = $prev_candle->min_price;
+                    $data_cci['close'][] = $prev_candle->close_price;
+                }
+                
+                $cci = $trading_analysis->cci($market, $data_cci);
 
                 switch ($assets_status[$currency]) {
                     case 'waiting_buy':
 
-                        if ($trading_analysis->cci($market, $data_cci) > -100) {
+                        if ($cci > -100) {
                             break;
                         }
 
@@ -93,19 +129,23 @@ class ExempleStrategyCCI extends Command
                         break;
 
                     case 'under_neg_100':
-
-                        if ($trading_analysis->cci($market, $data_cci) < -100) {
+                    
+                        if ($cci < -100) {
                             break;
                         }
                         
-                        if ($this->buy($currency)) {
-                            $assets_status[$currency] = 'waiting_sell';
+                        if ($cci > 0) {
+                            $assets_status[$currency] = 'waiting_buy';
+                            break;
                         }
+                        
+                        $assets_status[$currency] = 'waiting_sell';
+                        $this->buy($currency);
                         break;
 
                     case 'waiting_sell':
 
-                        if ($trading_analysis->cci($market, $data_cci) < 100) {
+                        if ($cci < 100) {
                             break;
                         }
 
@@ -114,7 +154,7 @@ class ExempleStrategyCCI extends Command
                         break;
                     case 'over_pos_100':
                         
-                        if ($trading_analysis->cci($market, $data_cci) > 100) {
+                        if ($cci > 100) {
                             break;
                         }
 
@@ -125,6 +165,7 @@ class ExempleStrategyCCI extends Command
                     
                 }
             }
+            sleep(20);
         }
     }
 
@@ -164,11 +205,11 @@ class ExempleStrategyCCI extends Command
 
         $rate = $ticker["result"]["Bid"];
         $quantity = DB::table('wallets')->where('currency', $currency)->first();
-
+        
         $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         
         $sum = $rate * $quantity->available - $fees;
-        
+
         $wallet->register_buy('BTC', $sum, 0.05);
         $wallet->register_sell($currency, $quantity->available);
 

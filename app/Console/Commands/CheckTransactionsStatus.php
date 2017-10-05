@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Business\BusinessBittrex;
+use App\Business\BusinessTransaction;
 use App\Models\Transaction;
 use Bittrex;
 
@@ -48,7 +48,7 @@ class CheckTransactionsStatus extends Command
      */
     public function handle()
     {
-        $business_bittrex = new BusinessBittrex();
+        $business_transaction = new BusinessTransaction();
 
         //On fait tourner le robot h24
         while (1)
@@ -57,7 +57,7 @@ class CheckTransactionsStatus extends Command
             
             foreach ($open_transactions as $key => $open_transaction)
             {
-                $order = $business_bittrex->get_order($open_transaction->order_id);
+                $order = $business_transaction->get_order($open_transaction->order_id);
 
                 if ($order['success'] != true)
                 {
@@ -69,7 +69,7 @@ class CheckTransactionsStatus extends Command
                     continue;
                 }
 
-                $business_bittrex->validate_transaction($order_id);
+                $business_transaction->validate_transaction($order_id);
             }
         }
     }

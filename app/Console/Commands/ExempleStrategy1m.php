@@ -11,21 +11,21 @@ use Illuminate\Support\Facades\DB;
 use Log;
 
 
-class ExempleStrategyCCI extends Command
+class ExempleStrategy1m extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'cryptobot:exemple_strategy';
+    protected $signature = 'cryptobot:exemple_strategy_1m';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'test strategy based on cci';
+    protected $description = 'test strategy based on candle 1m';
 
     /**
     * List of currencies for trading
@@ -119,58 +119,35 @@ class ExempleStrategyCCI extends Command
                     $data_cci['high'][] = $prev_candle->max_price;
                     $data_cci['low'][] = $prev_candle->min_price;
                     $data_cci['close'][] = $prev_candle->close_price;
+                    $data_cci['volume'][] = $prev_candle->volume;
                 }
 
 
                 //var_dump(count($data_cci['high']));
                 $cci = $trading_analysis->cci($market, $data_cci);
+                $cmo = $trading_analysis->cmo($market, $data_cci);
+                $mfi == $trading_analysis->mfi($market, $data_cci);
 
                 switch ($assets_status[$currency]) {
                     case 'waiting_buy':
 
-                        if ($cci > -100) {
+                        if ($cci > -100 || $cmo > -50 || $mfi >= 10) {
                             break;
                         }
 
-                        Log::info($currency . " is under 100");
-                        $assets_status[$currency] = 'under_neg_100';
-                        break;
-
-                    case 'under_neg_100':
-                    
-                        if ($cci < -100) {
-                            break;
-                        }
-                        
-                        if ($cci > 0) {
-                            $assets_status[$currency] = 'waiting_buy';
-                            break;
-                        }
-                        
-                        $assets_status[$currency] = 'waiting_sell';
                         $this->buy($currency);
+                        $assets_status[$currency] = 'waiting_sell';
                         break;
 
                     case 'waiting_sell':
 
-                        if ($cci < 100) {
+                        if ($cci < 100 || $cmo < 50 || $mfi < 80) {
                             break;
                         }
 
-                        Log::info($currency . " is over 100");
-                        $assets_status[$currency] = 'over_pos_100';
+                        $this->sell($currency);
+                        $assets_status[$currency] = 'waiting_buy';
                         break;
-                    case 'over_pos_100':
-                        
-                        if ($cci > 100) {
-                            break;
-                        }
-
-                        if ($this->sell($currency)) {
-                            $assets_status[$currency] = 'waiting_buy';
-                        }
-                        break;
-                    
                 }
             }
             sleep(20);
@@ -196,7 +173,7 @@ class ExempleStrategyCCI extends Command
         $wallet->register_sell('BTC', $sum);
         $wallet->register_buy($currency, $quantity_crypto);
 
-        Log::info($currency . " : break -100 -> buy " . $quantity_crypto . " for 0.05 BTC plus " . $fees . " BTC");
+        Log::info($currency . " : strategy 1m buy for 0.05 BTC plus " . $fees . " BTC");
 
         return true;
     }
@@ -216,12 +193,17 @@ class ExempleStrategyCCI extends Command
         
         $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         
-        $sum = $rate * $quantity->available - $fees;
+        $value_sell = $rate * $quantity->available;
+        $sum = $value_sell - $fees;
+        
+        $investissment = (0.05 + 0.000125);
+        $benef = $sum - $investissment;
+        $profit = $benef / $investissment * 100;
 
         $wallet->register_buy('BTC', $sum, 0);
         $wallet->register_sell($currency, $quantity->available);
 
-        Log::info($currency . " : break +100 -> sell " . $quantity->available . " for " . $sum . " BTC fees already paid (" . $fees . " BTC)");
+        Log::info($currency . " : strategy 1m sell for " . $value_sell . " BTC - (" . $sum . " with fees [" . $fees . " BTC]) PROFIT : " . round($profit, 2) . "%");
 
         return true;
     }

@@ -5,16 +5,16 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Business\BusinessTransaction;
 use App\Models\Transaction;
-use Bittrex;
+use Pepijnolivier\Bittrex\Bittrex;
 
-class CheckTransactionsStatus extends Command
+class testtamere extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'cryptobot:check_transactions_status';
+    protected $signature = 'cryptobot:testtamere';
 
     /**
      * The console command description.
@@ -48,29 +48,26 @@ class CheckTransactionsStatus extends Command
      */
     public function handle()
     {
-        $business_transaction = new BusinessTransaction();
+        /*
+        var_dump(Bittrex::getOrderHistory());
+        var_dump(Bittrex::getOpenOrders());
+        die();
+         */
+        $business_transaction = new BusinessTransaction('Bittrex');
 
-        //On fait tourner le robot h24
-        while (1)
-        {
-            $open_transactions = Transaction::where('status', 'open')->get();
-            
-            foreach ($open_transactions as $key => $open_transaction)
-            {
-                $order = $business_transaction->get_order($open_transaction->order_id);
+        $id_order_open = '2de73c55-d040-4d63-8369-b2d7e58974b4';
+        $id_order_close = '10de49e1-0038-458e-850d-b5954b4870dc';
 
-                if ($order['success'] != true)
-                {
-                    continue;
-                }
+        $order_open = $business_transaction->get_order($id_order_open);
+        $order_close = $business_transaction->get_order($id_order_close);
 
-                if ($order['result']['IsOpen'] == true)
-                {
-                    continue;
-                }
+        echo "Order Open : \n";
+        var_dump($order_open);
+        echo "\n\n";
 
-                $business_transaction->validate_transaction($order_id);
-            }
-        }
+        echo "Order close : \n";
+        var_dump($order_close);
+        echo "\n\n";
+
     }
 }

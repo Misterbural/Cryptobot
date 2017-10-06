@@ -92,14 +92,15 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function cancel ($order_id)
     {
-        $cancel = $this->cancelOrder($market, $quantity, $rate);
+        $order = $this->get_order($order_id);
+        $cancel = Bittrex::cancelOrder($order_id);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return $this->get_order($order_id);
+        return $order;
     }
 
     /**
@@ -109,7 +110,7 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function get_order ($order_id)
     {
-        $result = Bittrex::sellLimit($market, $quantity, $rate);
+        $result = Bittrex::getOrder($order_id);
 
         if ($result['success'] == false)
         {
@@ -120,9 +121,19 @@ class BrokerBittrex implements InterfaceBroker {
         
         $order['quantity'] = $result['result']['Quantity'];
         $order['actual_quantity'] = $result['result']['Quantity'] - $result['result']['QuantityRemaining'];
-        $order['rate'] = $result['result']['Price'] / $result['result']['Quantity'];
+        $order['rate'] = $result['result']['Limit'];
         $order['actual_rate'] = $result['result']['PricePerUnit'];
-        $order['fees'] = $result['result']['CommissionReserved'];
+
+        if (!$result['result']['CommissionReserved'])
+        {
+            $type = ($result['result']['Type'] == 'LIMIT_BUY' ? 'buy' : 'sell');
+            $order['fees'] = $this->compute_fees($type, $result['result']['Quantity'], $result['result']['Limit'];
+        }
+        else
+        {
+            $order['fees'] = $result['result']['CommissionReserved'];
+        }
+
         $order['actual_fees'] = $result['result']['CommissionPaid'];
         $order['date_open'] = $result['result']['Opened'];
         $order['open'] = $result['result']['IsOpen'] ? true : false;

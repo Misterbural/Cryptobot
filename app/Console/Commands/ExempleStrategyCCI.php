@@ -76,6 +76,12 @@ class ExempleStrategyCCI extends Command
                 $limit_date->setTime($limit_date->format('H'), $limit_date->format('i'), 0);
 
                 $candles = DB::table('candles_1m')->where('currencies', $market)->where('open_time', '>=', $limit_date)->get();
+                
+                if (count($candles) < 10) {
+                    continue;
+                }
+
+                //var_dump(count($candles));
                 $prev_candle = $candles[0];
                 $last_candle_theoric = new \DateTime();
                 $last_candle_theoric->sub(new \DateInterval("PT1M"));
@@ -114,7 +120,9 @@ class ExempleStrategyCCI extends Command
                     $data_cci['low'][] = $prev_candle->min_price;
                     $data_cci['close'][] = $prev_candle->close_price;
                 }
-                
+
+
+                //var_dump(count($data_cci['high']));
                 $cci = $trading_analysis->cci($market, $data_cci);
 
                 switch ($assets_status[$currency]) {
@@ -179,7 +187,7 @@ class ExempleStrategyCCI extends Command
             return false;
         }
         
-        $rate = $ticker["result"]["Ask"];
+        $rate = $ticker["result"]["Last"];
         $quantity_crypto = 0.05 / $rate;
 
         $fees = $transaction->compute_fees('buy', $quantity_crypto, $rate);
@@ -203,14 +211,14 @@ class ExempleStrategyCCI extends Command
             return false;
         }
 
-        $rate = $ticker["result"]["Bid"];
+        $rate = $ticker["result"]["Last"];
         $quantity = DB::table('wallets')->where('currency', $currency)->first();
         
         $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         
         $sum = $rate * $quantity->available - $fees;
 
-        $wallet->register_buy('BTC', $sum, 0.05);
+        $wallet->register_buy('BTC', $sum, 0);
         $wallet->register_sell($currency, $quantity->available);
 
         Log::info($currency . " : break +100 -> sell " . $quantity->available . " for " . $sum . " BTC fees already paid (" . $fees . " BTC)");

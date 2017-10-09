@@ -11,27 +11,30 @@ namespace App\Brokers;
 */
 
 use App\Brokers\InterfaceBroker;
-use Pepijnolivier\Bittrex\Bittrex;
+use Pepijnolivier\Yobit\Yobit;
 
-class BrokerBittrex implements InterfaceBroker {
+class BrokerYobit implements InterfaceBroker {
 
-    /**
+	/**
      * Place an order buy
      * @param string $market : The market to buy on
      * @param float $quantity : The quantity to buy
      * @param float $rate : The rate to buy (ex : if $market = BTC-BCC & $quantity = 2.0 & $rate = 0.5, you will spend 1BTC and get 2BCC)
-     * @return mixed : Order uuid if the order have been placed successfully, false if not
+     * @return mixed : Order order id if the order have been placed successfully, false if not
      */
     public function buy ($market, $quantity, $rate)
     {
-        $result = Bittrex::buyLimit($market, $quantity, $rate);
+    	$currencies = explode("-", $market);
+    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+
+        $result = Yobit::buy($market, $rate, $quantity);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return $result['result']['uuid'];
+        return $result['return']['order_id'];
     }
 
     /**
@@ -43,14 +46,17 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function sell ($market, $quantity, $rate)
     {
-        $result = Bittrex::sellLimit($market, $quantity, $rate);
+    	$currencies = explode("-", $market);
+    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+
+        $result = Yobit::sell($market, $rate, $quantity);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return $result['result']['uuid'];
+        return $result['return']['order_id'];
     }
 
     /**
@@ -61,7 +67,7 @@ class BrokerBittrex implements InterfaceBroker {
     public function cancel ($order_id)
     {
         $order = $this->get_order($order_id);
-        $cancel = Bittrex::cancelOrder($order_id);
+        $cancel = Yobit::cancelOrder($order_id);
 
         if ($result['success'] == false)
         {
@@ -78,7 +84,7 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function get_order ($order_id)
     {
-        $result = Bittrex::getOrder($order_id);
+        $result = Yobit::getOrderInfo($order_id);
 
         if ($result['success'] == false)
         {
@@ -87,28 +93,28 @@ class BrokerBittrex implements InterfaceBroker {
 
         $order = [];
         
-        $order['quantity'] = $result['result']['Quantity'];
-        $order['actual_quantity'] = $result['result']['Quantity'] - $result['result']['QuantityRemaining'];
-        $order['rate'] = $result['result']['Limit'];
-        $order['actual_rate'] = $result['result']['PricePerUnit'];
+        $order['quantity'] = $result['return']['start_amount'];
+        $order['actual_quantity'] = $result['return']['Quantity'] - $result['return']['amount'];
+        $order['rate'] = $result['return']['rate'];
+        $order['actual_rate'] = $result['return']['rate'];
 
-        if (!$result['result']['CommissionReserved'])
-        {
-            $type = ($result['result']['Type'] == 'LIMIT_BUY' ? 'buy' : 'sell');
-            $order['fees'] = $this->compute_fees($type, $result['result']['Quantity'], $result['result']['Limit']);
-        }
-        else
-        {
-            $order['fees'] = $result['result']['CommissionReserved'];
-        }
+        $type = $result['return']['Type'];
+        $order['fees'] = $this->compute_fees($type, $result['return']['start_amount'], $result['return']['rate'];
+ 
 
-        $order['actual_fees'] = $result['result']['CommissionPaid'];
-        $order['date_open'] = $result['result']['Opened'];
-        $order['open'] = $result['result']['IsOpen'] ? true : false;
+        $order['actual_fees'] = ($result['return']['start_amount'] - $result['return']['amount']) * $rate * 0.2 / 100;
+        
+        $date_open = new \DateTime();
+        $date_open->setTimestamp($result['return']['timestamp_created']);
+        $order['date_open'] = $date_open->format('Y-m-d i:m:s.u');
+        
+        $order['open'] =  false;
+        if ($result['return']['status'] == 0) {
+        	$order['open'] =  true;
+    	}
 
-        return $result['result'];
+        return $result['return'];
     }
-
 
     /**
      * Calcul fees
@@ -118,23 +124,21 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function compute_fees ($type, $quantity, $rate)
     {
-        return $quantity * $rate * 0.25 / 100;
+        return $quantity * $rate * 0.2 / 100;
     }
-    
+
     /**
      * Get last transaction rate for market
      * @param string $market : The market we want rate
      */
     public function get_market_last_rate ($market)
     {
-        $result = Bittrex::getTicker($market);
+    	$currencies = explode("-", $market);
+    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
 
-        if ($result['success'] == false)
-        {
-            return false;
-        }
+        $result = Yobit::getTicker($market);
 
-        return $result['result']['Last'];
+        return $result[$market]['last'];
     }
     
     /**
@@ -143,14 +147,12 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function get_market_ask_rate ($market)
     {
-        $result = Bittrex::getTicker($market);
+    	$currencies = explode("-", $market);
+    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
 
-        if ($result['success'] == false)
-        {
-            return false;
-        }
+        $result = Yobit::getTicker($market);
 
-        return $result['result']['Ask'];
+        return $result[$market]['sell'];
     }
     
     /**
@@ -159,14 +161,12 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function get_market_bid_rate ($market)
     {
-        $result = Bittrex::getTicker($market);
+    	$currencies = explode("-", $market);
+    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
 
-        if ($result['success'] == false)
-        {
-            return false;
-        }
+        $result = Yobit::getTicker($market);
 
-        return $result['result']['Bid'];
+        return $result[$market]['buy'];
     }
 
     /**
@@ -175,14 +175,14 @@ class BrokerBittrex implements InterfaceBroker {
      */
     public function get_deposit_address ($currency)
     {
-        $result = Bittrex::getDepositAddress($currency);
+        $result = Yobit::getDepositAddress($currency);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return $result['result']['Address'];
+        return $result['return']['address'];
     }
 
     /**
@@ -193,13 +193,14 @@ class BrokerBittrex implements InterfaceBroker {
     */
     public function withdraw ($currency, $quantity, $address)
     {
-        $result = Bittrex::withdraw($currency, $quantity, $address);
+        $result = Yobit::withdraw($currency, $quantity, $address);
 
         if ($result['success'] == false)
         {
             return false;
         }
 
-        return $result['result']['uuid'];
+        return true;
     }
+
 }

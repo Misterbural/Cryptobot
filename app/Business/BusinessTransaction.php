@@ -351,4 +351,24 @@ class BusinessTransaction {
         return true;
     }
 
+    /**
+    * Get deposit address for a currency
+    * @param string $currency : the currency we want address
+    */
+    public function get_deposit_address ($currency)
+    {
+        return $this->broker->get_deposit_address($currency);
+    }
+
+    /**
+    * send currency to another address (broker)
+    * @param string $currency : the currency we want to send
+    * @param float $quantity  : the quantity of currency we want to send
+    * @param string $address : the address to which send the currency
+    */
+    public function withdraw ($currency, $quantity, $address)
+    {
+        return $this->broker->withdraw($currency, $quantity, $address);
+    }
+
 }

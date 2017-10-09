@@ -28,7 +28,7 @@ interface InterfaceBroker {
      * @param (optionnal) float $link_to_order : The uuid of the order to link to this one
      * @return mixed : Order uuid if the order have been placed successfully, false if not
      */
-    public function sell ($market, $quantity, $rate, $link_to_order = false);
+    public function sell ($market, $quantity, $rate);
 
     /**
      * Cancel an order
@@ -69,4 +69,18 @@ interface InterfaceBroker {
      * @param string $market : The market we want rate
      */
     public function get_market_bid_rate ($market);
+
+    /**
+    * Get deposit address for a currency
+    * @param string $currency : the currency we want address
+    */
+    public function get_deposit_address ($currency);
+
+    /**
+    * send currency to another address (broker)
+    * @param string $currency : the currency we want to send
+    * @param float $quantity  : the quantity of currency we want to send
+    * @param string $address : the address to which send the currency
+    */
+    public function withdraw ($currency, $quantity, $address);
 }

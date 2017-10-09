@@ -169,6 +169,7 @@ return [
          * Package Service Providers...
         */
         Pepijnolivier\Bittrex\BittrexServiceProvider::class,
+        Pepijnolivier\Yobit\YobitServiceProvider::class,
 
         /*
          * Application Service Providers...

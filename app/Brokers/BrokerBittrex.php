@@ -58,7 +58,7 @@ class BrokerBittrex implements InterfaceBroker {
      * @param string $order_id : The id of the order to cancel
      * @return mixed array|bool : false if fail, else array return by get_order
      */
-    public function cancel ($order_id)
+    public function cancel ($order_id, $market = false)
     {
         $order = $this->get_order($order_id);
         $cancel = Bittrex::cancelOrder($order_id);
@@ -106,7 +106,7 @@ class BrokerBittrex implements InterfaceBroker {
         $order['date_open'] = $result['result']['Opened'];
         $order['open'] = $result['result']['IsOpen'] ? true : false;
 
-        return $result['result'];
+        return $order;
     }
 
 
@@ -172,6 +172,7 @@ class BrokerBittrex implements InterfaceBroker {
     /**
      * Get deposit address for a currency
      * @param string $currency : the currency we want address
+     * @return string address : address to deposit, if not exist, create but respond ADDRESS_GENERATING until one is available
      */
     public function get_deposit_address ($currency)
     {

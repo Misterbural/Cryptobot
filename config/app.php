@@ -170,6 +170,7 @@ return [
         */
         Pepijnolivier\Bittrex\BittrexServiceProvider::class,
         Pepijnolivier\Yobit\YobitServiceProvider::class,
+        Pepijnolivier\Poloniex\PoloniexServiceProvider::class,
 
         /*
          * Application Service Providers...

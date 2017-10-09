@@ -11,9 +11,9 @@ namespace App\Brokers;
 */
 
 use App\Brokers\InterfaceBroker;
-use Pepijnolivier\Yobit\Yobit;
+use Pepijnolivier\Poloniex\Poloniex;
 
-class BrokerYobit implements InterfaceBroker {
+class BrokerPoloniex implements InterfaceBroker {
 
 	/**
      * Place an order buy
@@ -24,17 +24,16 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function buy ($market, $quantity, $rate)
     {
-    	$currencies = explode("-", $market);
-    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+    	$market = str_replace("-", "_", $market);
 
-        $result = Yobit::buy($market, $rate, $quantity);
+        $result = Poloniex::buy($market, $rate, $quantity);
 
-        if ($result['success'] == false)
+        if (array_key_exists('error',$result))
         {
             return false;
         }
 
-        return $result['return']['order_id'];
+        return $result['orderNumber'];
     }
 
     /**
@@ -46,17 +45,16 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function sell ($market, $quantity, $rate)
     {
-    	$currencies = explode("-", $market);
-    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+    	$market = str_replace("-", "_", $market);
 
-        $result = Yobit::sell($market, $rate, $quantity);
+        $result = Poloniex::sell($market, $rate, $quantity);
 
-        if ($result['success'] == false)
+        if (array_key_exists('error',$result))
         {
             return false;
         }
 
-        return $result['return']['order_id'];
+        return $result['orderNumber'];
     }
 
     /**
@@ -64,12 +62,16 @@ class BrokerYobit implements InterfaceBroker {
      * @param string $order_id : The id of the order to cancel
      * @return mixed array|bool : false if fail, else array return by get_order
      */
-    public function cancel ($order_id, $market = false)
+    public function cancel ($order_id, $market)
     {
-        $order = $this->get_order($order_id);
-        $cancel = Yobit::cancelOrder($order_id);
+        if (!$market) {
+            return false;
+        }
 
-        if ($result['success'] == false)
+        $order = $this->get_order($order_id);
+        $cancel = Poloniex::cancelOrder($market, $order_id);
+
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -84,36 +86,46 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function get_order ($order_id)
     {
-        $result = Yobit::getOrderInfo($order_id);
+        $result = Poloniex::getOrdekrTrades($order_id);
 
-        if ($result['success'] == false)
+        if (array_key_exists('error',$result))
         {
             return false;
         }
 
         $order = [];
         
-        $order['quantity'] = $result['return']['start_amount'];
-        $order['actual_quantity'] = $result['return']['Quantity'] - $result['return']['amount'];
-        $order['rate'] = $result['return']['rate'];
-        $order['actual_rate'] = $result['return']['rate'];
+        $order['quantity'] = $result[0]['amount'];
+        $order['actual_quantity'] = $result[0]['amount'];
+        $order['rate'] = $result[0]['rate'];
+        $order['actual_rate'] = $result[0]['rate'];
+        $order['actual_fees'] = $order['actual_quantity'] * 0.25 /100;
+        $order['date_open'] = $result[0]['date'];
 
-        $type = $result['return']['Type'];
-        $order['fees'] = $this->compute_fees($type, $result['return']['start_amount'], $result['return']['rate'];
- 
 
-        $order['actual_fees'] = ($result['return']['start_amount'] - $result['return']['amount']) * $rate * 0.2 / 100;
+        $order['open'] = false;
+
+
+
+        $open_orders = Poloniex::getOpenOrders($result[0]['currencyPair']);
+
+        foreach ($open_orders as $open_order) {
+            if ($order_id == $open_order['orderNumber']) {
+                $order['open'] = true;
+            }
+        }
         
-        $date_open = new \DateTime();
-        $date_open->setTimestamp($result['return']['timestamp_created']);
-        $order['date_open'] = $date_open->format('Y-m-d i:m:s.u');
+        if (!$order['open']) {
+            return $order;
+        }
         
-        $order['open'] =  false;
-        if ($result['return']['status'] == 0) {
-        	$order['open'] =  true;
-    	}
+        $order['actual_quantity'] = 0;
+        $order['actual_fees'] = 0;
 
         return $order;
+
+
+        
     }
 
     /**
@@ -124,7 +136,7 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function compute_fees ($type, $quantity, $rate)
     {
-        return $quantity * $rate * 0.2 / 100;
+        return $quantity * $rate * 0.25 / 100;
     }
 
     /**
@@ -133,10 +145,9 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function get_market_last_rate ($market)
     {
-    	$currencies = explode("-", $market);
-    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+    	$market = str_replace("-", "_", $market);
 
-        $result = Yobit::getTicker($market);
+        $result = Poloniex::getTicker($market);
 
         return $result[$market]['last'];
     }
@@ -147,12 +158,11 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function get_market_ask_rate ($market)
     {
-    	$currencies = explode("-", $market);
-    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+    	$market = str_replace("-", "_", $market);
 
-        $result = Yobit::getTicker($market);
+        $result = Poloniex::getTicker($market);
 
-        return $result[$market]['sell'];
+        return $result[$market]['lowestAsk'];
     }
     
     /**
@@ -161,12 +171,11 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function get_market_bid_rate ($market)
     {
-    	$currencies = explode("-", $market);
-    	$market = strtolower($currencies[1] . "_" . $currencies[0]);
+    	$market = str_replace("-", "_", $market);
 
-        $result = Yobit::getTicker($market);
+        $result = Poloniex::getTicker($market);
 
-        return $result[$market]['buy'];
+        return $result[$market]['highestBid'];
     }
 
     /**
@@ -175,14 +184,26 @@ class BrokerYobit implements InterfaceBroker {
      */
     public function get_deposit_address ($currency)
     {
-        $result = Yobit::getDepositAddress($currency);
+        $result = Poloniex::getDepositAddresses();
 
-        if ($result['success'] == false)
+        if (array_key_exists('error',$result))
         {
             return false;
         }
 
-        return $result['return']['address'];
+        if (!array_key_exists($currency, $result))
+        {
+            $address = $this->generate_new_deposit_address ($currency);
+
+            if (!$address) 
+            {
+                return false;
+            }
+
+            return $address;
+        }
+
+        return $result[$currency];
     }
 
     /**
@@ -193,9 +214,9 @@ class BrokerYobit implements InterfaceBroker {
     */
     public function withdraw ($currency, $quantity, $address)
     {
-        $result = Yobit::withdraw($currency, $quantity, $address);
+        $result = Poloniex::withdraw($currency, $quantity, $address);
 
-        if ($result['success'] == false)
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -203,4 +224,16 @@ class BrokerYobit implements InterfaceBroker {
         return true;
     }
 
+
+    private function generate_new_deposit_address ($currency)
+    {
+        $result = Poloniex::generateNewAddress($currency);
+
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        return $result['response'];
+    }
 }

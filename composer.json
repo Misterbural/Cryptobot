@@ -6,12 +6,13 @@
     "type": "project",
     "require": {
         "php": ">=7.0.0",
+        "doctrine/dbal": "v2.4.2",
         "fideloper/proxy": "~3.3",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
         "pepijnolivier/laravel-bittrex": "^1.0",
-        "pepijnolivier/laravel-yobit": "dev-master",
-        "doctrine/dbal": "v2.4.2"
+        "pepijnolivier/laravel-poloniex": "^1.2",
+        "pepijnolivier/laravel-yobit": "dev-master"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

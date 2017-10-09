@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1030c04f38803283117f9ca7d057f133",
-    "content-hash": "e2c6d86eb928b49dcbf6e27265e564c9",
+    "hash": "6509fb092433ce611765182154f3eb07",
+    "content-hash": "ef94c56653a10dac13e9f6dfb92e9f45",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1337,6 +1337,44 @@
             ],
             "description": "Bittrex API wrapper for Laravel",
             "time": "2017-08-28 16:52:29"
+        },
+        {
+            "name": "pepijnolivier/laravel-poloniex",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pepijnolivier/laravel-poloniex.git",
+                "reference": "4e964521d601136599ced31c17e1fba0b42706ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pepijnolivier/laravel-poloniex/zipball/4e964521d601136599ced31c17e1fba0b42706ed",
+                "reference": "4e964521d601136599ced31c17e1fba0b42706ed",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "laravel/framework": ">=5.3",
+                "php": ">=7.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Pepijnolivier\\Poloniex\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pepijn Olivier",
+                    "email": "olivier.pepijn@gmail.com"
+                }
+            ],
+            "description": "Poloniex API wrapper for Laravel",
+            "time": "2017-07-15 13:41:01"
         },
         {
             "name": "pepijnolivier/laravel-yobit",

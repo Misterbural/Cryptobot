@@ -236,4 +236,64 @@ class BrokerPoloniex implements InterfaceBroker {
 
         return $result['response'];
     }
+
+    /**
+    * get quantity of currencies
+    */
+    public function getBalances()
+    {
+        $result = Poloniex::getCompleteBalances();
+
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        $balances = [];
+
+        foreach ($result as $currency => $balance) {
+            $balances[$currency]['available'] = $balance['available'];
+            $balances[$currency]['on_trade'] = $balance['onOrders'];
+        }
+        
+        return $balances;
+    }
+
+    /**
+    * get order book for a market
+    * @param string $market : the market (BTC-ETH) we want the order book
+    */
+    public function getOrderBook($market)
+    {
+        $market = str_replace("-", "_", $market);
+
+        $result = Poloniex::getOrderBook($market);
+
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        $book = [];
+
+        if (array_key_exists('bids', $result)) {
+            foreach ($result['bids'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order[1];
+                $add_to_book['rate'] = $order[0];
+                $book['buy'][] = $order;
+            }
+        }
+
+        if (array_key_exists('asks',$result)) {
+            foreach ($result['asks'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order[1];
+                $add_to_book['rate'] = $order[0];
+                $book['sell'][] = $order;
+            }
+        }
+
+        return $book;
+    }
 }

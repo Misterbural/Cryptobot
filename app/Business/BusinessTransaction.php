@@ -371,4 +371,21 @@ class BusinessTransaction {
         return $this->broker->withdraw($currency, $quantity, $address);
     }
 
+    /**
+    * get quantity of currencies
+    */
+    public function getBalances()
+    {
+        return $this->broker->getBalances();
+    }
+
+    /**
+    * get order book for a market
+    * @param string $market : the market (BTC-ETH) we want the order book
+    */
+    public function getOrderBook($market)
+    {
+        return $this->broker->getOrderBook($market);
+    }
+
 }

@@ -25,7 +25,6 @@ interface InterfaceBroker {
      * @param string $market : The market to sell on
      * @param float $quantity : The quantity to sell
      * @param float $rate : The rate to sell
-     * @param (optionnal) float $link_to_order : The uuid of the order to link to this one
      * @return mixed : Order uuid if the order have been placed successfully, false if not
      */
     public function sell ($market, $quantity, $rate);
@@ -83,4 +82,15 @@ interface InterfaceBroker {
     * @param string $address : the address to which send the currency
     */
     public function withdraw ($currency, $quantity, $address);
+
+    /**
+    * get quantity of each currencies on our balances
+    */
+    public function getBalances();
+
+    /**
+    * get order book for a market
+    * @param string $market : the market (BTC-ETH) we want the order book
+    */
+    public function getOrderBook($market);
 }

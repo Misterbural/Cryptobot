@@ -203,4 +203,68 @@ class BrokerYobit implements InterfaceBroker {
         return true;
     }
 
+    /**
+    * get quantity of currencies
+    */
+    public function getBalances()
+    {
+        $result = Yobit::getTradeInfo();
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        $balances = [];
+
+        foreach ($result['result']['funds'] as $currency => $balance) {
+            $balances[$currency]]['available'] = $balance;
+        }
+
+        foreach ($result['result']['funds_incl_orders'] as $currency => $balance) {
+            $balances[$currency]]['on_trade'] = $balance - $balances[$currency]]['available'];
+        }
+        
+        return $balances;
+    }
+
+    /**
+    * get order book for a market
+    * @param string $market : the market (BTC-ETH) we want the order book
+    */
+    public function getOrderBook($market)
+    {
+        $currencies = explode("-", $market);
+        $market = strtolower($currencies[1] . "_" . $currencies[0]);
+
+        $result = Yobit::getDepth($market);
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        $book = [];
+
+        if (array_key_exists('bids', $result[$market])) {
+            foreach ($result[$market]['bids'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order[1];
+                $add_to_book['rate'] = $order[0];
+                $book['buy'][] = $order;
+            }
+        }
+
+        if (array_key_exists('asks',$result[$market])) {
+            foreach ($result[$market]['asks'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order[1];
+                $add_to_book['rate'] = $order[0];
+                $book['sell'][] = $order;
+            }
+        }
+
+        return $book;
+    }
+
 }

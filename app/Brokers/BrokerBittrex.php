@@ -203,4 +203,62 @@ class BrokerBittrex implements InterfaceBroker {
 
         return $result['result']['uuid'];
     }
+
+    /**
+    * get quantity of currencies
+    */
+    public function getBalances()
+    {
+        $result = Bittrex::getBalances();
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        $balances = [];
+
+        foreach ($result['result'] as $balance) {
+            $balances[$balance['Currency']]['available'] = $balance['Available'];
+            $balances[$balance['Currency']]['on_trade'] = $balance['Pending'];
+        }
+        
+        return $balances;
+    }
+
+    /**
+    * get order book for a market
+    * @param string $market : the market (BTC-ETH) we want the order book
+    */
+    public function getOrderBook($market)
+    {
+        $result = Bittrex::getOrderBook($market, 'both');
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        $book = [];
+
+        if (array_key_exists('buy',$result['result'])) {
+            foreach ($result['result']['buy'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order["Quantity"];
+                $add_to_book['rate'] = $order["Rate"];
+                $book['buy'][] = $add_to_book;
+            }
+        }
+
+        if (array_key_exists('sell',$result['result'])) {
+            foreach ($result['result']['sell'] as $order) {
+                $add_to_book = [];
+                $add_to_book['quantity'] = $order["Quantity"];
+                $add_to_book['rate'] = $order["Rate"];
+                $book['sell'][] = $add_to_book;
+            }
+        }
+
+        return $book;
+    }
 }

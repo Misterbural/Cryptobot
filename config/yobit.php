@@ -10,8 +10,8 @@ return [
      */
 
     'auth' => [
-        'key'    => env('YOBIT_KEY', ''),
-        'secret' => env('YOBIT_SECRET', ''),
+        'key'    => env('YOBIT_KEY', 'B140FB76CED9D340FAE19E484F0F6251'),
+        'secret' => env('YOBIT_SECRET', 'f011fec7dea954b2dd9bedb179fd7acd'),
     ],
 
     /*

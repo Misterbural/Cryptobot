@@ -62,7 +62,7 @@ class BrokerPoloniex implements InterfaceBroker {
      * @param string $order_id : The id of the order to cancel
      * @return mixed array|bool : false if fail, else array return by get_order
      */
-    public function cancel ($order_id, $market)
+    public function cancel ($order_id, $market = false)
     {
         if (!$market) {
             return false;
@@ -281,7 +281,7 @@ class BrokerPoloniex implements InterfaceBroker {
                 $add_to_book = [];
                 $add_to_book['quantity'] = $order[1];
                 $add_to_book['rate'] = $order[0];
-                $book['buy'][] = $order;
+                $book['buy'][] = $add_to_book;
             }
         }
 
@@ -290,7 +290,7 @@ class BrokerPoloniex implements InterfaceBroker {
                 $add_to_book = [];
                 $add_to_book['quantity'] = $order[1];
                 $add_to_book['rate'] = $order[0];
-                $book['sell'][] = $order;
+                $book['sell'][] = $add_to_book;
             }
         }
 

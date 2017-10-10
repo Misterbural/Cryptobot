@@ -10,8 +10,8 @@ return [
      */
 
     'auth' => [
-        'key'    => env('BITTREX_KEY', 'd60709a834c84ea0a98f40ee392904ef'),
-        'secret' => env('BITTREX_SECRET', 'c8fa661c4e2d4ed0b91594649161eeeb'),
+        'key'    => env('BITTREX_KEY', 'a0e7e97f3e104bfd9686e6d614939573'),
+        'secret' => env('BITTREX_SECRET', '9249d27e71ff4bdcb4cde42d9506d8bc'),
     ],
 
     /*

@@ -220,9 +220,9 @@ class BrokerBittrex implements InterfaceBroker {
 
         foreach ($result['result'] as $balance) {
             $balances[$balance['Currency']]['available'] = $balance['Available'];
-            $balances[$balance['Currency']]['on_trade'] = $balance['Pending'];
+            $balances[$balance['Currency']]['on_trade'] = $balance['Balance'] - $balance['Available'];
         }
-        
+
         return $balances;
     }
 

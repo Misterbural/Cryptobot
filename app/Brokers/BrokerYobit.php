@@ -99,7 +99,7 @@ class BrokerYobit implements InterfaceBroker {
         $order['actual_rate'] = $result['return']['rate'];
 
         $type = $result['return']['Type'];
-        $order['fees'] = $this->compute_fees($type, $result['return']['start_amount'], $result['return']['rate'];
+        $order['fees'] = $this->compute_fees($type, $result['return']['start_amount'], $result['return']['rate']);
  
 
         $order['actual_fees'] = ($result['return']['start_amount'] - $result['return']['amount']) * $rate * 0.2 / 100;
@@ -217,12 +217,16 @@ class BrokerYobit implements InterfaceBroker {
 
         $balances = [];
 
-        foreach ($result['result']['funds'] as $currency => $balance) {
-            $balances[$currency]]['available'] = $balance;
+        if (array_key_exists('funds', $result['return'])) {
+            foreach ($result['return']['funds'] as $currency => $balance) {
+                $balances[$currency]['available'] = $balance;
+            }
         }
 
-        foreach ($result['result']['funds_incl_orders'] as $currency => $balance) {
-            $balances[$currency]]['on_trade'] = $balance - $balances[$currency]]['available'];
+        if (array_key_exists('funds_incl_orders', $result['return'])) {
+            foreach ($result['return']['funds_incl_orders'] as $currency => $balance) {
+                $balances[$currency]['on_trade'] = $balance - $balances[$currency]['available'];
+            }
         }
         
         return $balances;
@@ -239,11 +243,6 @@ class BrokerYobit implements InterfaceBroker {
 
         $result = Yobit::getDepth($market);
 
-        if ($result['success'] == false)
-        {
-            return false;
-        }
-
         $book = [];
 
         if (array_key_exists('bids', $result[$market])) {
@@ -251,7 +250,7 @@ class BrokerYobit implements InterfaceBroker {
                 $add_to_book = [];
                 $add_to_book['quantity'] = $order[1];
                 $add_to_book['rate'] = $order[0];
-                $book['buy'][] = $order;
+                $book['buy'][] = $add_to_book;
             }
         }
 
@@ -260,7 +259,7 @@ class BrokerYobit implements InterfaceBroker {
                 $add_to_book = [];
                 $add_to_book['quantity'] = $order[1];
                 $add_to_book['rate'] = $order[0];
-                $book['sell'][] = $order;
+                $book['sell'][] = $add_to_book;
             }
         }
 

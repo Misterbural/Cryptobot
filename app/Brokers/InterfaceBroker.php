@@ -34,14 +34,14 @@ interface InterfaceBroker {
      * @param string $order_id : The id of the order to cancel
      * @return mixed array|bool : false if fail, else array return buy get_order
      */
-    public function cancel ($order_id);
+    public function cancel ($order_id, $market = false);
 
     /**
      * Get an order
      * @param string $order_id : The id of the order to get
      * @return mixed array|bool : false if fail, else array with ['quantity', 'actual_quantity', 'rate', 'actual_rate', 'fees', 'actual_fees', 'date_open', 'open']
      */
-    public function get_order ($order_id, $market = false);
+    public function get_order ($order_id);
 
     /**
      * Calcul fees

@@ -11,8 +11,8 @@ return [
     */
 
     'auth' => [
-        'key' => env('POLONIEX_KEY', 'K48OK1U3-CI4AAJ7Y-PKLW1Q5J-U5Z0MX3W'),
-        'secret' => env('POLONIEX_SECRET', '544403c1a546b9b1a1397a62730cdf34da21461506f3b48a7a1d8a84386378ac83a1a9614919111b75f588efeabf75bf715f19e341931c0a6dddafc4119dbf6d'),
+        'key' => env('POLONIEX_KEY', 'OOAI67JZ-F6WG5YUM-C2AKEN2Y-9XOKY79D'),
+        'secret' => env('POLONIEX_SECRET', '4e84156ae23a7dd90df1c0a0de123fb6fe9d86c1122278c4249914abb0d5645494d8f173bd184136bf30b5ffeac073cc9d0eba986cc5c35f7ffa5edad91cb7d1'),
     ],
 
     /*

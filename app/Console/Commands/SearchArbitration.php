@@ -57,29 +57,29 @@ class SearchArbitration extends Command
         while (true) {
 
             //Pour chaque monnaies
-            foreach ($this->currencies as $currency) {
+            foreach ($this->currencies as $currency => $brokers) {
                 
-                $market = "BTC-" . $currency;
+                if (count($brokers) < 2) {
+                    continue;
+                }
+
                 $ask = [];
                 $bid = [];
 
                 //on va chercher les prix d'achats ventes sur chaque broker
-                $bittrex_ask = $bittrex_transaction->get_market_ask_rate($market);
-                if ($bittrex_ask) {
-                    $ask['bittrex'] = $bittrex_ask;
-                    $bid['bittrex'] = $bittrex_transaction->get_market_bid_rate($market);
+                if (array_key_exists('bittrex',$brokers)) {
+                    $ask['bittrex'] = $bittrex_transaction->get_market_ask_rate('BTC-' . $brokers['bittrex']);
+                    $bid['bittrex'] = $bittrex_transaction->get_market_bid_rate('BTC-' . $brokers['bittrex']);
                 }
 
-                $yobit_ask = $yobit_transaction->get_market_ask_rate($market);
-                if ($yobit_ask) {
-                    $ask['yobit'] = $yobit_ask;
-                    $bid['yobit'] = $yobit_transaction->get_market_bid_rate($market);
+                if (array_key_exists('yobit',$brokers)) {
+                    $ask['yobit'] = $yobit_transaction->get_market_ask_rate('BTC-' . $brokers['yobit']);
+                    $bid['yobit'] = $yobit_transaction->get_market_bid_rate('BTC-' . $brokers['yobit']);
                 }
 
-                $poloniex_ask = $poloniex_transaction->get_market_ask_rate($market);
-                if ($poloniex_ask) {
-                    $ask['poloniex'] = $poloniex_ask;
-                    $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate($market);
+                if (array_key_exists('poloniex',$brokers)) {
+                    $ask['poloniex'] = $poloniex_transaction->get_market_ask_rate('BTC-' . $brokers['poloniex']);
+                    $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate('BTC-' . $brokers['poloniex']);
                 }
 
                 //On cherche le marché sur lequel on peut acheter le moins cher (min ask) et le marché sur lequel on peut vendre le plus cher (max bid)
@@ -91,7 +91,10 @@ class SearchArbitration extends Command
 
                 $profit = ($price_sell - $price_buy) / $price_buy * 100;
 
-                if ($profit > 4) {
+                //calcul the quantity to buy with order book
+                //limit buy all over x% profit but max quantity selling in profit and limited buy bitcoin available
+
+                if ($profit > 0) {
                     echo $currency . " buy on " . $broker_buy . " for " . $price_buy . " sell on " . $broker_sell . " for " . $price_sell .  " Profit : " . $profit . "%\n";
                 }
                 

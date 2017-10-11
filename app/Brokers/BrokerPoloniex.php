@@ -86,7 +86,7 @@ class BrokerPoloniex implements InterfaceBroker {
      */
     public function get_order ($order_id)
     {
-        $result = Poloniex::getOrdekrTrades($order_id);
+        $result = Poloniex::getOrderTrades($order_id);
 
         if (array_key_exists('error',$result))
         {

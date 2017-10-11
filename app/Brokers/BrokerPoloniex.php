@@ -149,7 +149,7 @@ class BrokerPoloniex implements InterfaceBroker {
 
         $result = Poloniex::getTicker($market);
 
-        return $result[$market]['last'];
+        return $result['last'];
     }
     
     /**
@@ -162,7 +162,7 @@ class BrokerPoloniex implements InterfaceBroker {
 
         $result = Poloniex::getTicker($market);
 
-        return $result[$market]['lowestAsk'];
+        return $result['lowestAsk'];
     }
     
     /**
@@ -175,7 +175,7 @@ class BrokerPoloniex implements InterfaceBroker {
 
         $result = Poloniex::getTicker($market);
 
-        return $result[$market]['highestBid'];
+        return $result['highestBid'];
     }
 
     /**
@@ -242,7 +242,7 @@ class BrokerPoloniex implements InterfaceBroker {
     */
     public function getBalances()
     {
-        $result = Poloniex::getCompleteBalances();
+        $result = Poloniex::getBalances();
 
         if (array_key_exists('error',$result))
         {

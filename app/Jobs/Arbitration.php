@@ -39,20 +39,41 @@ class Arbitration implements ShouldQueue
      */
     public function handle()
     {
+        $business_transaction_buy = new BusinessTransaction($this->broker_buy);
+        $business_transaction_sell = new BusinessTransaction($this->broker_sell);
+
         /////////////////////////////////////////////////////
         //         TODO VERIFIER MAINTENANCE WALLET        //
         /////////////////////////////////////////////////////
 
-        $business_transaction_buy = new BusinessTransaction($this->broker_buy);
-        $business_transaction_sell = new BusinessTransaction($this->broker_sell);
+        //Récupération des orders books d'achat et de vente
+        //Et de la balance de crypto sur la plateforme d'achat pour récupérer la quantité de BTC dispo
+        while (true) {
+            try
+            {
+                $order_book_we_buy = $business_transaction_buy->get_order_book("BTC-" . $this->currency_code_buy)['sell'];
+                $order_book_we_sell = $business_transaction_sell->get_order_book("BTC-" . $this->currency_code_sell)['buy'];
+                $balances = $business_transaction_buy->get_balances();
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            break;
+        }
+        
 
-        $order_book_we_buy = $business_transaction_buy->getOrderBook("BTC-" . $this->currency_code_buy)['sell'];
-        $order_book_we_sell = $business_transaction_sell->getOrderBook("BTC-" . $this->currency_code_sell)['buy'];
+        if (!array_key_exists('BTC', $balances)) {
+            return false;
+        }
 
-        $limit_buy_rate = $order_book_we_sell[0]['rate'] - $order_book_we_sell[0]['rate'] * 4 / 100;
-        $limit_buy_quantity = $order_book_we_sell[0]['quantity'];
-        //Gérer portefeuil vide (yobit retrun array empty)
-        $limit_buy_btc = $business_transaction_buy->getBalances()['BTC']['available'];
+        if ($balances['BTC']['available'] == 0 || $balances['BTC']['available'] == null) {
+            return false;
+        }
+        
+        $order_sell_index = 0;
+        $order_sell_rate = $order_book_we_sell[$order_sell_index]['rate'];
+        $limit_buy_quantity = $order_book_we_sell[$order_sell_index]['quantity'];
+        $limit_buy_btc = $balances['BTC']['available'];
 
         $orders = array(
             "total_quantity" => 0,
@@ -61,10 +82,12 @@ class Arbitration implements ShouldQueue
         );
 
         $last = false;
+        
+        for ($i = 0; $i < count($order_book_we_buy); $i++) {
 
-        foreach ($order_book_we_buy as $order_we_buy) {
-            
-            if ($order_we_buy['rate'] > $limit_buy_rate) {
+            $order_we_buy = $order_book_we_buy[$i];
+
+            if ($order_we_buy['rate'] > $order_sell_rate * 0.975) {
                 break;
             }
 
@@ -77,7 +100,14 @@ class Arbitration implements ShouldQueue
             if ($orders['total_quantity'] + $order['quantity'] > $limit_buy_quantity) {
                 $order['quantity'] = $limit_buy_quantity - $orders['total_quantity'];
                 $order['btc_value'] = $order['quantity'] * $order['rate'] + $business_transaction_buy->compute_fees('buy', $order['quantity'], $order['rate']);
-                $last = true;
+                
+                //update order_sell_rate & limit_buy_quantity
+                $order_sell_index += 1;
+                $order_sell_rate = $order_book_we_sell[$order_sell_index]['rate'];
+                $limit_buy_quantity += $order_book_we_sell[$order_sell_index]['quantity'];
+                
+                $order_book_we_buy[$i]['quantity'] -= $order['quantity'];
+                $i--;
             }
 
             if ($orders['total_btc_value'] + $order['btc_value'] > $limit_buy_btc) {
@@ -97,30 +127,85 @@ class Arbitration implements ShouldQueue
             }
         }
 
+        //On peut récupérer les fees de withdraw a priori Poloniex et Bittrex getCurrencies -> TxFee
         $benef = $orders['total_quantity'] * $order_book_we_sell[0]['rate'] - $orders['total_btc_value'];
-        echo "Bénéfice total sur " . $this->currency_code_buy . " : " . $benef . " BTC\n";
+        echo "Bénéfice total sur " . $this->currency_code_buy . " : " . $benef . " BTC soit " . $benef*4500 . "€\n";
 
         //Partie critique achat et vente
-        /*foreach ($orders['list'] as $order) {
-            $business_transaction_buy->buy('BTC-' . $this->currency_code_buy, $order['quantity'], $order['rate']);
+
+        //Passe les ordres d'achats
+        /*for ($i = 0; $i < count($orders['list']); $i++) {
+            $order = $orders['list'][$i];
+            try
+            {
+                $business_transaction_buy->buy('BTC-' . $this->currency_code_buy, $order['quantity'], $order['rate']);
+            } catch (\Exception $e) {
+                sleep(1);
+                $i--;
+            }
         }
 
         //comment s'assurer que tout les ordres sont passés ? annuler ce qui ne sont pas passer directement, update $orders['total_value_btc']
-        //si existe pas dans bittrex renvoie false le temps de la créer comment gérer cela ?
-        $deposit_address = $business_transaction_sell->get_deposit_address($this->currency_code_sell);
 
-        $business_transaction_buy->withdraw($this->currency_code_buy, $orders['total_quantity'], $deposit_address);
-
-        //comment attendre et s'assurer que la transaction est terminé ?
-        $update_order_book_we_sell = $business_transaction_sell->getOrderBook("BTC-" . $this->currency_code_sell)['buy'];
-
-        foreach ($update_order_book_we_sell as $order_we_sell) {
-            
-            if ($orders['total_quantity'] < $order_we_sell['quantity']) {
-                $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $order_we_sell['rate']);
-                break;
+        //get deposit address
+        while (true) {
+            try
+            {
+                $deposit_address = $business_transaction_sell->get_deposit_address($this->currency_code_sell);
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
             }
-            $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $order_we_sell['quantity'], $order_we_sell['rate']);
+            if (!$deposit_address) {
+                sleep(5);
+                continue;
+            }
+            break;
+        }
+        
+        //Transaction de la plateforme d'achat vers celle de vente
+        while (true) {
+            try
+            {
+                $business_transaction_buy->withdraw($this->currency_code_buy, $orders['total_quantity'], $deposit_address);
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            
+            break;
+        }
+
+        //comment attendre et s'assurer que la transaction est terminé ? get quantity du wallet si >= quantité acheté good problème si approximation achat
+
+
+        //mise a jour de l'order book de la plateforme de vente 
+        while (true) {
+            try
+            {
+                $update_order_book_we_sell = $business_transaction_sell->get_order_book("BTC-" . $this->currency_code_sell)['buy'];
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            
+            break;
+        }
+
+        //passe les ordres de vente
+        for ($i = 0; $i < count($update_order_book_we_sell); $i++) {
+            $order_we_sell = $update_order_book_we_sell[$i]
+            try
+            {
+                if ($orders['total_quantity'] < $order_we_sell['quantity']) {
+                    $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $order_we_sell['rate']);
+                    break;
+                }
+                $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $order_we_sell['quantity'], $order_we_sell['rate']);
+            } catch (\Exception $e) {
+                sleep(1);
+                $i--;
+            }         
         
         }*/
         

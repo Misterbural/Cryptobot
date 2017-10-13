@@ -86,11 +86,19 @@ interface InterfaceBroker {
     /**
     * get quantity of each currencies on our balances
     */
-    public function getBalances();
+    public function get_balances();
 
     /**
     * get order book for a market
     * @param string $market : the market (BTC-ETH) we want the order book
+    * @return array : order book order by rate
     */
-    public function getOrderBook($market);
+    public function get_order_book($market);
+
+    /**
+    * ask the broker if a wallet is available or not
+    * @param string $currency : code of currency
+    * @return bool
+    */
+    public function is_wallet_available($currency);
 }

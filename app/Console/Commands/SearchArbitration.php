@@ -69,19 +69,23 @@ class SearchArbitration extends Command
                 $bid = [];
 
                 //on va chercher les prix d'achats ventes sur chaque broker
-                if (array_key_exists('bittrex', $code_broker)) {
-                    $ask['bittrex'] = $bittrex_transaction->get_market_ask_rate('BTC-' . $code_broker['bittrex']);
-                    $bid['bittrex'] = $bittrex_transaction->get_market_bid_rate('BTC-' . $code_broker['bittrex']);
-                }
+                while (true) {
+                    try {
+                        if (array_key_exists('bittrex', $code_broker)) {
+                            $ask['bittrex'] = $bittrex_transaction->get_market_ask_rate('BTC-' . $code_broker['bittrex']);
+                            $bid['bittrex'] = $bittrex_transaction->get_market_bid_rate('BTC-' . $code_broker['bittrex']);
+                        }
 
-                if (array_key_exists('yobit', $code_broker)) {
-                    $ask['yobit'] = $yobit_transaction->get_market_ask_rate('BTC-' . $code_broker['yobit']);
-                    $bid['yobit'] = $yobit_transaction->get_market_bid_rate('BTC-' . $code_broker['yobit']);
-                }
-
-                if (array_key_exists('poloniex', $code_broker)) {
-                    $ask['poloniex'] = $poloniex_transaction->get_market_ask_rate('BTC-' . $code_broker['poloniex']);
-                    $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate('BTC-' . $code_broker['poloniex']);
+                        if (array_key_exists('poloniex', $code_broker)) {
+                            $ask['poloniex'] = $poloniex_transaction->get_market_ask_rate('BTC-' . $code_broker['poloniex']);
+                            $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate('BTC-' . $code_broker['poloniex']);
+                        }
+                    } catch (\Exception $e) {
+                        sleep(1);
+                        continue;
+                    }
+                    break;
+                    
                 }
 
                 //On cherche le marché sur lequel on peut acheter le moins cher (min ask) et le marché sur lequel on peut vendre le plus cher (max bid)
@@ -93,7 +97,7 @@ class SearchArbitration extends Command
 
                 $profit = ($price_sell - $price_buy) / $price_buy * 100;
 
-                if ($profit > 4) {
+                if ($profit > 2.5) {
                     
                     Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
                     //echo $currency . " buy on " . $broker_buy . " for " . $price_buy . " sell on " . $broker_sell . " for " . $price_sell .  " Profit : " . $profit . "%\n";
@@ -101,7 +105,7 @@ class SearchArbitration extends Command
                 
             }
 
-            
+            die();
 
         }
     }

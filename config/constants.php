@@ -56,27 +56,22 @@ return [
         "Ethereum" => array(
             "poloniex" => "ETH",
             "bittrex" => "ETH",
-            "yobit" => "ETH",
         ),
         "Bitcoin Cash" => array(
             "poloniex" => "BCH",
             "bittrex" => "BCC",
-            "yobit" => "BCC",
         ),
         "Litecoin" => array(
             "poloniex" => "LTC",
             "bittrex" => "LTC",
-            "yobit" => "LTC",
         ),
         "Dash" => array(
             "poloniex" => "DASH",
             "bittrex" => "DASH",
-            "yobit" => "DASH",
         ),
         "NEM" => array(
             "poloniex" => "XEM",
             "bittrex" => "XEM",
-            "yobit" => "XEM",
         ),
         "NEO" => array(
             "bittrex" => "NEO",
@@ -84,7 +79,6 @@ return [
         "Ethereum Classic" => array(
             "poloniex" => "ETC",
             "bittrex" => "ETC",
-            "yobit" => "ETC",
         ),
         "OmiseGO" => array(
             "poloniex" => "OMG",
@@ -93,16 +87,13 @@ return [
         "Lisk" => array(
             "poloniex" => "LSK",
             "bittrex" => "LSK",
-            "yobit" => "LSK",
         ),
         "ZCash" => array(
             "poloniex" => "ZEC",
             "bittrex" => "ZEC",
-            "yobit" => "ZEC",
         ),
         "Waves" => array(
             "bittrex" => "WAVES",
-            "yobit" => "WAVES",
         ),
         "Stratis" => array(
             "poloniex" => "STRAT",
@@ -135,7 +126,6 @@ return [
         ),
         "PIVX" => array(
             "bittrex" => "PIVX",
-            "yobit" => "PIVX",
         ),
         "MaidSafeCoin" => array(
             "poloniex" => "MAID",
@@ -151,7 +141,6 @@ return [
         "Decred" => array(
             "poloniex" => "DCR",
             "bittrex" => "DCR",
-            "yobit" => "DCR",
         ),
         "Factom" => array(
             "poloniex" => "FCT",
@@ -160,12 +149,10 @@ return [
         "GameCredits" => array(
             "poloniex" => "GAME",
             "bittrex" => "GAME",
-            "yobit" => "GAME",
         ),
         "BitShares" => array(
             "poloniex" => "BTS",
             "bittrex" => "BTS",
-            "yobit" => "BTS",
         ),
         "Siacoin" => array(
             "poloniex" => "SC",
@@ -186,7 +173,6 @@ return [
         "DigiByte" => array(
             "poloniex" => "DGB",
             "bittrex" => "DGB",
-            "yobit" => "DGB",
         ),
         "Nexus" => array(
             "bittrex" => "NXS",
@@ -194,16 +180,13 @@ return [
         "Syscoin" => array(
             "poloniex" => "SYS",
             "bittrex" => "SYS",
-            "yobit" => "SYS",
         ),
         "Monaco" => array(
             "bittrex" => "MCO",
-            "yobit" => "MCO",
         ),
         "Vertcoin" => array(
             "poloniex" => "VTC",
             "bittrex" => "VTC",
-            "yobit" => "VTC",
         ),
         "Ubiq" => array(
             "bittrex" => "UBQ",
@@ -213,49 +196,38 @@ return [
             "bittrex" => "NAV",
         ),
         "SONM" => array(
-            "yobit" => "SNM",
         ),
         "Viacoin" => array(
             "poloniex" => "VIA",
             "bittrex" => "VIA",
-            "yobit" => "VIA",
         ),
         "Namecoin" => array(
             "poloniex" => "NMC",
-            "yobit" => "NMC",
         ),
         "Humaniq" => array(
             "bittrex" => "HMQ",
-            "yobit" => "HMQ",
         ),
         "Emercoin" => array(
             "bittrex" => "EMC",
-            "yobit" => "EMC",
         ),
         "EverGreenCoin" => array(
             "bittrex" => "EGC",
-            "yobit" => "EGC",
         ),
         "Gulden" => array(
             "bittrex" => "NLG",
-            "yobit" => "NLG",
         ),
         "Syndicate" => array(
             "bittrex" => "SYNX",
-            "yobit" => "SYNX",
         ),
         "Magi" => array(
             "bittrex" => "XMG",
-            "yobit" => "XMG",
         ),
         "Expanse" => array(
             "poloniex" => "EXP",
             "bittrex" => "EXP",
-            "yobit" => "EXP",
         ),
         "Rise" => array(
             "bittrex" => "RISE",
-            "yobit" => "RISE",
         ),
     ),
 

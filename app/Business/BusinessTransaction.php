@@ -374,18 +374,29 @@ class BusinessTransaction {
     /**
     * get quantity of currencies
     */
-    public function getBalances()
+    public function get_balances()
     {
-        return $this->broker->getBalances();
+        return $this->broker->get_balances();
     }
 
     /**
     * get order book for a market
     * @param string $market : the market (BTC-ETH) we want the order book
+    * @return array : order book order by rate
     */
-    public function getOrderBook($market)
+    public function get_order_book($market)
     {
-        return $this->broker->getOrderBook($market);
+        return $this->broker->get_order_book($market);
+    }
+
+    /**
+    * ask the broker if a wallet is available or not
+    * @param string $currency : code of currency
+    * @return bool
+    */
+    public function is_wallet_available($currency)
+    {
+        return $this->broker->is_wallet_available($currency);
     }
 
 }

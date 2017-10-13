@@ -240,9 +240,9 @@ class BrokerPoloniex implements InterfaceBroker {
     /**
     * get quantity of currencies
     */
-    public function getBalances()
+    public function get_balances()
     {
-        $result = Poloniex::getBalances();
+        $result = Poloniex::getCompleteBalances();
 
         if (array_key_exists('error',$result))
         {
@@ -263,7 +263,7 @@ class BrokerPoloniex implements InterfaceBroker {
     * get order book for a market
     * @param string $market : the market (BTC-ETH) we want the order book
     */
-    public function getOrderBook($market)
+    public function get_order_book($market)
     {
         $market = str_replace("-", "_", $market);
 
@@ -295,5 +295,26 @@ class BrokerPoloniex implements InterfaceBroker {
         }
 
         return $book;
+    }
+
+    /**
+    * ask the broker if a wallet is available or not
+    * @param string $currency : code of currency
+    * @return bool
+    */
+    public function is_wallet_available($currency)
+    {
+        $result = Poloniex::getCurrencies();
+
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        if ($result[$currency]['disabled'] == 1 || $result[$currency]['delisted'] == 1) {
+            return false;
+        }
+
+        return true;
     }
 }

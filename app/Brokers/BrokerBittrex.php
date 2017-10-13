@@ -207,7 +207,7 @@ class BrokerBittrex implements InterfaceBroker {
     /**
     * get quantity of currencies
     */
-    public function getBalances()
+    public function get_balances()
     {
         $result = Bittrex::getBalances();
 
@@ -230,7 +230,7 @@ class BrokerBittrex implements InterfaceBroker {
     * get order book for a market
     * @param string $market : the market (BTC-ETH) we want the order book
     */
-    public function getOrderBook($market)
+    public function get_order_book($market)
     {
         $result = Bittrex::getOrderBook($market, 'both');
 
@@ -260,5 +260,22 @@ class BrokerBittrex implements InterfaceBroker {
         }
 
         return $book;
+    }
+
+    /**
+    * ask the broker if a wallet is available or not
+    * @param string $currency : code of currency
+    * @return bool
+    */
+    public function is_wallet_available($currency)
+    {
+        $result = Bittrex::getCurrencies();
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        return $result['result'][$currency]['IsActive'];
     }
 }

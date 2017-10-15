@@ -42,9 +42,19 @@ class Arbitration implements ShouldQueue
         $business_transaction_buy = new BusinessTransaction($this->broker_buy);
         $business_transaction_sell = new BusinessTransaction($this->broker_sell);
 
-        /////////////////////////////////////////////////////
-        //         TODO VERIFIER MAINTENANCE WALLET        //
-        /////////////////////////////////////////////////////
+        while (true) {
+            try
+            {
+                if (!$business_transaction_buy->is_wallet_available($this->currency_code_buy) || !$business_transaction_sell->is_wallet_available($this->currency_code_sell)) {
+                    return false;
+                }
+                
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            break;
+        }
 
         //Récupération des orders books d'achat et de vente
         //Et de la balance de crypto sur la plateforme d'achat pour récupérer la quantité de BTC dispo
@@ -147,6 +157,7 @@ class Arbitration implements ShouldQueue
 
         //comment s'assurer que tout les ordres sont passés ? annuler ce qui ne sont pas passer directement, update $orders['total_value_btc']
 
+
         //get deposit address
         while (true) {
             try
@@ -176,8 +187,27 @@ class Arbitration implements ShouldQueue
             break;
         }
 
-        //comment attendre et s'assurer que la transaction est terminé ? get quantity du wallet si >= quantité acheté good problème si approximation achat
+        //attendre fin transfert broker, problème si approximation achat
+        while (true) {
+            try
+            {
+                $balance_broker_sell = $business_transaction_sell->get_balances();
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            if (!array_key_exists($currency_code_sell, $balances)) {
+                sleep(5);
+                continue;
+            }
 
+            if ($balances[$currency_code_sell]['available'] < $orders['total_quantity']) {
+                sleep(5);
+                continue;
+            }
+
+            break;
+        }
 
         //mise a jour de l'order book de la plateforme de vente 
         while (true) {

@@ -51,8 +51,8 @@ class SearchArbitration extends Command
     {
 
         $bittrex_transaction = new BusinessTransaction('bittrex' ,'arbitration');
-        $yobit_transaction = new BusinessTransaction('yobit' ,'arbitration');
         $poloniex_transaction = new BusinessTransaction('poloniex' ,'arbitration');
+        $poloniex_transaction = new BusinessTransaction('bitfinex' ,'arbitration');
 
         while (true) {
 
@@ -80,6 +80,11 @@ class SearchArbitration extends Command
                             $ask['poloniex'] = $poloniex_transaction->get_market_ask_rate('BTC-' . $code_broker['poloniex']);
                             $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate('BTC-' . $code_broker['poloniex']);
                         }
+
+                        if (array_key_exists('bitfinex', $code_broker)) {
+                            $ask['bitfinex'] = $bitfinex_transaction->get_market_ask_rate('BTC-' . $code_broker['bitfinex']);
+                            $bid['bitfinex'] = $bitfinex_transaction->get_market_bid_rate('BTC-' . $code_broker['bitfinex']);
+                        }
                     } catch (\Exception $e) {
                         sleep(1);
                         continue;
@@ -99,14 +104,11 @@ class SearchArbitration extends Command
 
                 if ($profit > 2.5) {
                     
-                    Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
-                    //echo $currency . " buy on " . $broker_buy . " for " . $price_buy . " sell on " . $broker_sell . " for " . $price_sell .  " Profit : " . $profit . "%\n";
+                    //Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
+                    echo $currency . " buy on " . $broker_buy . " for " . $price_buy . " sell on " . $broker_sell . " for " . $price_sell .  " Profit : " . $profit . "%\n";
                 }
-                
+                sleep(1);
             }
-
-            die();
-
         }
     }
 }

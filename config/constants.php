@@ -56,18 +56,22 @@ return [
         "Ethereum" => array(
             "poloniex" => "ETH",
             "bittrex" => "ETH",
+            "bitfinex" => "ETH",
         ),
         "Bitcoin Cash" => array(
             "poloniex" => "BCH",
             "bittrex" => "BCC",
+            "bitfinex" => "BCH",
         ),
         "Litecoin" => array(
             "poloniex" => "LTC",
             "bittrex" => "LTC",
+            "bitfinex" => "LTC",
         ),
         "Dash" => array(
             "poloniex" => "DASH",
             "bittrex" => "DASH",
+            "bitfinex" => "DASH",
         ),
         "NEM" => array(
             "poloniex" => "XEM",
@@ -75,14 +79,17 @@ return [
         ),
         "NEO" => array(
             "bittrex" => "NEO",
+            "bitfinex" => "NEO",
         ),
         "Ethereum Classic" => array(
             "poloniex" => "ETC",
             "bittrex" => "ETC",
+            "bitfinex" => "ETC",
         ),
         "OmiseGO" => array(
             "poloniex" => "OMG",
             "bittrex" => "OMG",
+            "bitfinex" => "OMG",
         ),
         "Lisk" => array(
             "poloniex" => "LSK",
@@ -91,6 +98,7 @@ return [
         "ZCash" => array(
             "poloniex" => "ZEC",
             "bittrex" => "ZEC",
+            "bitfinex" => "ZEC",
         ),
         "Waves" => array(
             "bittrex" => "WAVES",
@@ -152,7 +160,6 @@ return [
         ),
         "BitShares" => array(
             "poloniex" => "BTS",
-            "bittrex" => "BTS",
         ),
         "Siacoin" => array(
             "poloniex" => "SC",
@@ -229,6 +236,27 @@ return [
         "Rise" => array(
             "bittrex" => "RISE",
         ),
+        "EOS" => array(
+            "bitfinex" => "EOS",
+        ),
+        "IOTA" => array(
+            "bitfinex" => "EOS",
+        ),
+        "Santiment" => array(
+            "bitfinex" => "SAN",
+        ),
+        "Aventus" => array(
+            "bitfinex" => "AVT",
+        ),
+        "Qtum" => array(
+            "bittrex" => "QTUM",
+            "bitfinex" => "QTM",
+        ),
+    ),
+
+    'bitfinex' => array(
+        "key" => "mxnMqTN7rmaYC19pYUTwtKHftpk3fvbDlMJaaLCWu9d",
+        "secret" => "r3G7EVzxjREqeusTWKwPe52LhBhDsGkDvAZmLVlURJR"
     ),
 
 ];

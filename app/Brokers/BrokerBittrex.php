@@ -103,7 +103,7 @@ class BrokerBittrex implements InterfaceBroker {
         }
 
         $order['actual_fees'] = $result['result']['CommissionPaid'];
-        $order['date_open'] = $result['result']['Opened'];
+        $order['date_open'] = new \DateTime($result['result']['Opened']);
         $order['open'] = $result['result']['IsOpen'] ? true : false;
 
         return $order;

@@ -100,7 +100,7 @@ class BrokerPoloniex implements InterfaceBroker {
         $order['rate'] = $result[0]['rate'];
         $order['actual_rate'] = $result[0]['rate'];
         $order['actual_fees'] = $order['actual_quantity'] * 0.25 /100;
-        $order['date_open'] = $result[0]['date'];
+        $order['date_open'] = new \DateTime($result[0]['date']);
 
 
         $order['open'] = false;

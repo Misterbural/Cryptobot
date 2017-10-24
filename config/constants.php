@@ -53,205 +53,202 @@ return [
     ),
 
     'currencies_arbitration' => array(
-        "Ethereum" => array(
+        "Ethereum" => array( // ~ 20 secondes
             "poloniex" => "ETH",
             "bittrex" => "ETH",
             "bitfinex" => "ETH",
         ),
-        "Bitcoin Cash" => array(
+        /*"Bitcoin Cash" => array( // ~ 5 minutes
             "poloniex" => "BCH",
             "bittrex" => "BCC",
             "bitfinex" => "BCH",
         ),
-        "Litecoin" => array(
+        "Litecoin" => array( // ~ 4 minutes
             "poloniex" => "LTC",
             "bittrex" => "LTC",
             "bitfinex" => "LTC",
         ),
-        "Dash" => array(
+        "Dash" => array( // ~ 5 minutes (très irrégulier)
             "poloniex" => "DASH",
             "bittrex" => "DASH",
             "bitfinex" => "DASH",
-        ),
-        "NEM" => array(
+        ),*/
+        "NEM" => array( // ~ moins d'une minute
             "poloniex" => "XEM",
             "bittrex" => "XEM",
         ),
-        "NEO" => array(
+        "NEO" => array( // ~ moins d'une minute
             "bittrex" => "NEO",
             "bitfinex" => "NEO",
         ),
-        "Ethereum Classic" => array(
+        "Ethereum Classic" => array( // ~ 20 secondes
             "poloniex" => "ETC",
             "bittrex" => "ETC",
             "bitfinex" => "ETC",
         ),
-        "OmiseGO" => array(
+        "OmiseGO" => array( // ~ 20 secondes
             "poloniex" => "OMG",
             "bittrex" => "OMG",
             "bitfinex" => "OMG",
         ),
-        "Lisk" => array(
+        "Lisk" => array( // = 10 secondes
             "poloniex" => "LSK",
             "bittrex" => "LSK",
         ),
-        "ZCash" => array(
+        /*"ZCash" => array( // ~ 3 minutes (très irrégulier)
             "poloniex" => "ZEC",
             "bittrex" => "ZEC",
             "bitfinex" => "ZEC",
-        ),
-        "Waves" => array(
+        ),*/
+        "Waves" => array( // moins d'une minute
             "bittrex" => "WAVES",
         ),
-        "Stratis" => array(
+        "Stratis" => array( // ~ 1 minute
             "poloniex" => "STRAT",
             "bittrex" => "STRAT",
         ),
-        "Stellar Lumens" => array(
+        "Stellar Lumens" => array( // ~ 10 secondes
             "poloniex" => "STR",
             "bittrex" => "XLM",
         ),
-        "Ark" => array(
+        "Ark" => array( // ~ 10 secondes
             "bittrex" => "ARK",
         ),
-        "Steem" => array(
+        "Steem" => array( // ~ 10 secondes
             "poloniex" => "STEEM",
             "bittrex" => "STEEM",
         ),
-        "TenX" => array(
+        "TenX" => array( // ~ 20 secondes
             "bittrex" => "PAY",
         ),
-        "Augur" => array(
+        "Augur" => array( // ~ 20 secondes
             "poloniex" => "REP",
             "bittrex" => "REP",
         ),
-        "Ardor" => array(
+        /*"Ardor" => array( // ~ 1/2 minutess
             "poloniex" => "ARDR",
             "bittrex" => "ARDR",
-        ),
-        "Basic Attention Token" => array(
+        ),*/
+        "Basic Attention Token" => array( // ~ 20 secondes
             "bittrex" => "BAT",
         ),
-        "PIVX" => array(
+        /*"PIVX" => array( // ??
             "bittrex" => "PIVX",
         ),
-        "MaidSafeCoin" => array(
+        "MaidSafeCoin" => array( // ??
             "poloniex" => "MAID",
             "bittrex" => "MAID",
-        ),
-        "Golem" => array(
+        ),*/
+        "Golem" => array( // ~ 20 secondes
             "poloniex" => "GNT",
             "bittrex" => "GNT",
         ),
-        "Komodo" => array(
+        "Komodo" => array( // ~ 1 minute
             "bittrex" => "KMD",
         ),
-        "Decred" => array(
+        /*"Decred" => array( // ~ 10 minutes
             "poloniex" => "DCR",
             "bittrex" => "DCR",
         ),
-        "Factom" => array(
+        "Factom" => array( // = 10 minutes
             "poloniex" => "FCT",
             "bittrex" => "FCT",
         ),
-        "GameCredits" => array(
+        "GameCredits" => array( // très très irrégulier
             "poloniex" => "GAME",
             "bittrex" => "GAME",
         ),
-        "BitShares" => array(
+        "BitShares" => array( // ??
             "poloniex" => "BTS",
         ),
-        "Siacoin" => array(
+        "Siacoin" => array( // ??
             "poloniex" => "SC",
             "bittrex" => "SC",
-        ),
-        "Civic" => array(
+        ),*/
+        "Civic" => array( // ~ 20 secondes
             "poloniex" => "CVC",
             "bittrex" => "CVC",
         ),
-        "Gnosis" => array(
+        "Gnosis" => array( // ~ 20 secondes
             "poloniex" => "GNO",
             "bittrex" => "GNO",
         ),
-        "BitcoinDark" => array(
+        /*"BitcoinDark" => array( // ??
             "poloniex" => "BTCD",
             "bittrex" => "BTCD",
-        ),
-        "DigiByte" => array(
+        ),*/
+        "DigiByte" => array( // moins d'une minute
             "poloniex" => "DGB",
             "bittrex" => "DGB",
         ),
-        "Nexus" => array(
+        "Nexus" => array( // moins d'une minute
             "bittrex" => "NXS",
         ),
-        "Syscoin" => array(
+        "Syscoin" => array( // ~ 1 minute
             "poloniex" => "SYS",
             "bittrex" => "SYS",
         ),
-        "Monaco" => array(
+        "Monaco" => array( // ~ 20 secondes
             "bittrex" => "MCO",
         ),
-        "Vertcoin" => array(
+        /*"Vertcoin" => array( // très très irrégulier
             "poloniex" => "VTC",
             "bittrex" => "VTC",
         ),
-        "Ubiq" => array(
+        "Ubiq" => array( // ??
             "bittrex" => "UBQ",
-        ),
-        "NAV coin" => array(
+        ),*/
+        "NAV coin" => array( // ~ 30 secondes
             "poloniex" => "NAV",
             "bittrex" => "NAV",
         ),
-        "SONM" => array(
+        "SONM" => array( // ~ 20 secondes
         ),
-        "Viacoin" => array(
+        "Viacoin" => array( // ~ 10 secondes
             "poloniex" => "VIA",
             "bittrex" => "VIA",
         ),
-        "Namecoin" => array(
+        /*"Namecoin" => array( // ~ 10 minutes
             "poloniex" => "NMC",
-        ),
-        "Humaniq" => array(
+        ),*/
+        "Humaniq" => array( // ~ 20 secondes
             "bittrex" => "HMQ",
         ),
-        "Emercoin" => array(
+        /*"Emercoin" => array( // ~ 4 minutes (très irrégulier)
             "bittrex" => "EMC",
         ),
-        "EverGreenCoin" => array(
+        "EverGreenCoin" => array( // ??
             "bittrex" => "EGC",
         ),
-        "Gulden" => array(
+        "Gulden" => array( // irrégulier
             "bittrex" => "NLG",
         ),
-        "Syndicate" => array(
+        "Syndicate" => array( // ??
             "bittrex" => "SYNX",
-        ),
-        "Magi" => array(
+        ),*/
+        "Magi" => array( // moins d'une minutes (des fois irrégulier)
             "bittrex" => "XMG",
         ),
-        "Expanse" => array(
+        "Expanse" => array( // moins d'une minutes (des fois irrégulier)
             "poloniex" => "EXP",
             "bittrex" => "EXP",
         ),
-        "Rise" => array(
+        "Rise" => array( // = 30 secondes
             "bittrex" => "RISE",
         ),
-        "EOS" => array(
+        "EOS" => array( // ~ 20 secondes
             "bitfinex" => "EOS",
         ),
-        "IOTA" => array(
-            "bitfinex" => "EOS",
-        ),
-        "Santiment" => array(
+        "Santiment" => array( // ~ 20 secondes
             "bitfinex" => "SAN",
         ),
-        "Aventus" => array(
+        "Aventus" => array( // ~ 20 secondes
             "bitfinex" => "AVT",
         ),
-        "Qtum" => array(
+        /*"Qtum" => array( // irrégulier
             "bittrex" => "QTUM",
             "bitfinex" => "QTM",
-        ),
+        ),*/
     ),
 
     'bitfinex' => array(

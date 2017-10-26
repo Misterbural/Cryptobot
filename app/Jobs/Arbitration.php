@@ -79,6 +79,16 @@ class Arbitration implements ShouldQueue
         if ($balances['BTC']['available'] == 0 || $balances['BTC']['available'] == null) {
             return false;
         }
+
+        while(true) {
+            try {
+                $withdraw_fees = $this->broker_buy->get_withdraw_fees($this->currency_code_buy);
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            break;
+        }
         
         $order_sell_index = 0;
         $order_sell_rate = $order_book_we_sell[$order_sell_index]['rate'];
@@ -88,6 +98,7 @@ class Arbitration implements ShouldQueue
         $orders = array(
             "total_quantity" => 0,
             "total_btc_value" => 0,
+            "profit" => 0,
             "list" => [],
         );
 
@@ -97,7 +108,7 @@ class Arbitration implements ShouldQueue
 
             $order_we_buy = $order_book_we_buy[$i];
 
-            if ($order_we_buy['rate'] > $order_sell_rate * 0.975) {
+            if ($order_we_buy['rate'] > $order_sell_rate * 0.985) {
                 break;
             }
 
@@ -128,8 +139,10 @@ class Arbitration implements ShouldQueue
                 $last = true;
             }
             
+
             $orders['total_quantity'] += $order['quantity'];
             $orders['total_btc_value'] += $order['btc_value'];
+            $orders['profit'] += ($order['quantity'] * $order_sell_rate['rate']) - ($order['quantity'] * $order_we_buy['rate']);
             $orders['list'][] = $order;
 
             if ($last) {
@@ -137,14 +150,25 @@ class Arbitration implements ShouldQueue
             }
         }
 
-        //On peut récupérer les fees de withdraw a priori Poloniex et Bittrex getCurrencies -> TxFee
-        $benef = $orders['total_quantity'] * $order_book_we_sell[0]['rate'] - $orders['total_btc_value'];
-        echo "Bénéfice total sur " . $this->currency_code_buy . " : " . $benef . " BTC soit " . $benef*4500 . "€\n";
+        $orders['total_quantity'] -= $withdraw_fees;
+        $orders['btc_value'] -= $withdraw_fees * $order_sell_rate;
+        $orders['profit'] -= $withdraw_fees * $order_sell_rate;
+
+        //verifier que meme avec les fees de withdraw on reste rentable
+        if ($orders['total_quantity'] < 0 || $orders['profit'] < 0) {
+            return false;
+        }
+
+        $minimum_order_size_buy = $business_transaction_buy->get_minimum_order_size('BTC-' . $currency_code_buy);
+        $minimum_order_size_sell = $business_transaction_sell->get_minimum_order_size('BTC-' . $currency_code_sell);
+
+        if ($orders['btc_value'] < max($minimum_order_size_buy, $minimum_order_size_sell)) {
+            return false;
+        }
 
         //Partie critique achat et vente
-
         //Passe les ordres d'achats
-        /*for ($i = 0; $i < count($orders['list']); $i++) {
+        for ($i = 0; $i < count($orders['list']); $i++) {
             $order = $orders['list'][$i];
             try
             {
@@ -237,7 +261,7 @@ class Arbitration implements ShouldQueue
                 $i--;
             }         
         
-        }*/
+        }
         
     }
 }

@@ -102,10 +102,8 @@ class SearchArbitration extends Command
 
                 $profit = ($price_sell - $price_buy) / $price_buy * 100;
 
-                if ($profit > 2.5) {
-                    
-                    //Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
-                    echo $currency . " buy on " . $broker_buy . " for " . $price_buy . " sell on " . $broker_sell . " for " . $price_sell .  " Profit : " . $profit . "%\n";
+                if ($profit > 1.5) {
+                    Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
                 }
                 sleep(1);
             }

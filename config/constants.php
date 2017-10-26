@@ -58,7 +58,7 @@ return [
             "bittrex" => "ETH",
             "bitfinex" => "ETH",
         ),
-        /*"Bitcoin Cash" => array( // ~ 5 minutes
+        "Bitcoin Cash" => array( // ~ 5 minutes
             "poloniex" => "BCH",
             "bittrex" => "BCC",
             "bitfinex" => "BCH",
@@ -72,7 +72,7 @@ return [
             "poloniex" => "DASH",
             "bittrex" => "DASH",
             "bitfinex" => "DASH",
-        ),*/
+        ),
         "NEM" => array( // ~ moins d'une minute
             "poloniex" => "XEM",
             "bittrex" => "XEM",
@@ -95,11 +95,11 @@ return [
             "poloniex" => "LSK",
             "bittrex" => "LSK",
         ),
-        /*"ZCash" => array( // ~ 3 minutes (très irrégulier)
+        "ZCash" => array( // ~ 3 minutes (très irrégulier)
             "poloniex" => "ZEC",
             "bittrex" => "ZEC",
             "bitfinex" => "ZEC",
-        ),*/
+        ),
         "Waves" => array( // moins d'une minute
             "bittrex" => "WAVES",
         ),
@@ -125,20 +125,20 @@ return [
             "poloniex" => "REP",
             "bittrex" => "REP",
         ),
-        /*"Ardor" => array( // ~ 1/2 minutess
+        "Ardor" => array( // ~ 1/2 minutess
             "poloniex" => "ARDR",
             "bittrex" => "ARDR",
-        ),*/
+        ),
         "Basic Attention Token" => array( // ~ 20 secondes
             "bittrex" => "BAT",
         ),
-        /*"PIVX" => array( // ??
+        "PIVX" => array( // ??
             "bittrex" => "PIVX",
         ),
         "MaidSafeCoin" => array( // ??
             "poloniex" => "MAID",
             "bittrex" => "MAID",
-        ),*/
+        ),
         "Golem" => array( // ~ 20 secondes
             "poloniex" => "GNT",
             "bittrex" => "GNT",
@@ -146,7 +146,7 @@ return [
         "Komodo" => array( // ~ 1 minute
             "bittrex" => "KMD",
         ),
-        /*"Decred" => array( // ~ 10 minutes
+        "Decred" => array( // ~ 10 minutes
             "poloniex" => "DCR",
             "bittrex" => "DCR",
         ),
@@ -164,7 +164,7 @@ return [
         "Siacoin" => array( // ??
             "poloniex" => "SC",
             "bittrex" => "SC",
-        ),*/
+        ),
         "Civic" => array( // ~ 20 secondes
             "poloniex" => "CVC",
             "bittrex" => "CVC",
@@ -173,10 +173,10 @@ return [
             "poloniex" => "GNO",
             "bittrex" => "GNO",
         ),
-        /*"BitcoinDark" => array( // ??
+        "BitcoinDark" => array( // ??
             "poloniex" => "BTCD",
             "bittrex" => "BTCD",
-        ),*/
+        ),
         "DigiByte" => array( // moins d'une minute
             "poloniex" => "DGB",
             "bittrex" => "DGB",
@@ -191,13 +191,13 @@ return [
         "Monaco" => array( // ~ 20 secondes
             "bittrex" => "MCO",
         ),
-        /*"Vertcoin" => array( // très très irrégulier
+        "Vertcoin" => array( // très très irrégulier
             "poloniex" => "VTC",
             "bittrex" => "VTC",
         ),
         "Ubiq" => array( // ??
             "bittrex" => "UBQ",
-        ),*/
+        ),
         "NAV coin" => array( // ~ 30 secondes
             "poloniex" => "NAV",
             "bittrex" => "NAV",
@@ -208,13 +208,13 @@ return [
             "poloniex" => "VIA",
             "bittrex" => "VIA",
         ),
-        /*"Namecoin" => array( // ~ 10 minutes
+        "Namecoin" => array( // ~ 10 minutes
             "poloniex" => "NMC",
-        ),*/
+        ),
         "Humaniq" => array( // ~ 20 secondes
             "bittrex" => "HMQ",
         ),
-        /*"Emercoin" => array( // ~ 4 minutes (très irrégulier)
+        "Emercoin" => array( // ~ 4 minutes (très irrégulier)
             "bittrex" => "EMC",
         ),
         "EverGreenCoin" => array( // ??
@@ -225,7 +225,7 @@ return [
         ),
         "Syndicate" => array( // ??
             "bittrex" => "SYNX",
-        ),*/
+        ),
         "Magi" => array( // moins d'une minutes (des fois irrégulier)
             "bittrex" => "XMG",
         ),
@@ -245,10 +245,10 @@ return [
         "Aventus" => array( // ~ 20 secondes
             "bitfinex" => "AVT",
         ),
-        /*"Qtum" => array( // irrégulier
+        "Qtum" => array( // irrégulier
             "bittrex" => "QTUM",
             "bitfinex" => "QTM",
-        ),*/
+        ),
     ),
 
     'bitfinex' => array(

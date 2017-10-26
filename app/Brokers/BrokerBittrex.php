@@ -308,4 +308,14 @@ class BrokerBittrex implements InterfaceBroker {
         }
         return false;
     }
+
+    /**
+    * ask to the broker the minimum order size in BTC
+    * @param string $market : market we want 
+    * @return float
+    */
+    public function get_minimum_order_size($market)
+    {
+        return 0.0005;
+    }
 }

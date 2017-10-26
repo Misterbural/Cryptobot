@@ -33,7 +33,7 @@ class BrokerBitfinex implements InterfaceBroker {
     public function buy ($market, $quantity, $rate)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->new_order($market, (string)$quantity, (string)$rate, 'bitfinex', 'buy', 'limit');
 
@@ -55,7 +55,7 @@ class BrokerBitfinex implements InterfaceBroker {
     public function sell ($market, $quantity, $rate)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->new_order($market, (string)$quantity, (string)$rate, 'bitfinex', 'sell', 'limit');
 
@@ -134,11 +134,11 @@ class BrokerBitfinex implements InterfaceBroker {
     public function get_market_last_rate ($market)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->get_ticker($market);
 
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -153,11 +153,11 @@ class BrokerBitfinex implements InterfaceBroker {
     public function get_market_ask_rate ($market)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->get_ticker($market);
 
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -172,11 +172,11 @@ class BrokerBitfinex implements InterfaceBroker {
     public function get_market_bid_rate ($market)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->get_ticker($market);
 
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -263,7 +263,7 @@ class BrokerBitfinex implements InterfaceBroker {
     public function get_order_book($market)
     {
         $currencies = explode("-", $market);
-        $market = $currencies[1] .  $currencies[0];
+        $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->get_book($market);
         
@@ -355,6 +355,43 @@ class BrokerBitfinex implements InterfaceBroker {
         }
     }
 
+    /**
+    * ask to the broker the minimum order size in BTC
+    * @param string $market : market we want 
+    * @return float
+    */
+    public function get_minimum_order_size($market)
+    {
+        $currencies = explode("-", $market);
+        $pair = strtolower($this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]));
+
+        $result = $this->bitfinex->get_symbols_details();
+        
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        foreach ($result as $result_pair) {
+            if ($pair != $result_pair['pair']) {
+                continue;
+            }
+
+            while (true) {
+                try {
+                    $price = $this->get_market_ask_rate($market);
+                } catch (\Exception $e) {
+                    sleep(1);
+                    continue;
+                }
+                break;
+            }
+            
+            return $result_pair['minimum_order_size'] * $price;
+        }
+        return false;
+    }
+
     private function convert_currency_code_to_currency_name($currency_code)
     {
         switch ($currency_code) {
@@ -390,6 +427,19 @@ class BrokerBitfinex implements InterfaceBroker {
                 return false;
         }
     }
+
+    private function convert_currency_code_to_code_pair($currency_code)
+    {
+        switch ($currency_code) {
+            case 'DASH':
+                return 'DSH';
+            case 'IOTA':
+                return 'IOT';
+            default:
+                return $currency_code;
+        }   
+    }
+
 
     
 }

@@ -69,7 +69,7 @@ class testtamere extends Command
         var_dump($order_close);
         echo "\n\n";*/
 
-        var_dump($business_transaction->get_withdraw_fees("BTC"));
+        var_dump($business_transaction->get_minimum_order_size('BTC-IOTA'));
 
     }
 }

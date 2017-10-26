@@ -409,4 +409,14 @@ class BusinessTransaction {
         return $this->broker->get_withdraw_fees($currency);
     }
 
+    /**
+    * ask to the broker the minimum order size in BTC
+    * @param string $market : market we want 
+    * @return float
+    */
+    public function get_minimum_order_size($market)
+    {
+        return $this->broker->get_minimum_order_size($market);
+    }
+
 }

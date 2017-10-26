@@ -105,7 +105,14 @@ interface InterfaceBroker {
     /**
     * ask to the broker the fees of withdraw for a currency
     * @param string $currency : code of currency
-    * @return floar
+    * @return float
     */
     public function get_withdraw_fees($currency);
+
+    /**
+    * ask to the broker the minimum order size in BTC
+    * @param string $market : market we want 
+    * @return float
+    */
+    public function get_minimum_order_size($market);
 }

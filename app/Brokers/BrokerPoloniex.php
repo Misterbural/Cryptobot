@@ -334,4 +334,14 @@ class BrokerPoloniex implements InterfaceBroker {
 
         return (float)$result[$currency]['txFee'];
     }
+
+    /**
+    * ask to the broker the minimum order size in BTC
+    * @param string $market : market we want 
+    * @return float
+    */
+    public function get_minimum_order_size($market)
+    {
+        return 0.0001;
+    }
 }

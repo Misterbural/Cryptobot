@@ -317,4 +317,21 @@ class BrokerPoloniex implements InterfaceBroker {
 
         return true;
     }
+
+    /**
+    * ask to the broker the fees of withdraw for a currency
+    * @param string $currency : code of currency
+    * @return floar
+    */
+    public function get_withdraw_fees($currency)
+    {
+        $result = Poloniex::getCurrencies();
+
+        if (array_key_exists('error',$result))
+        {
+            return false;
+        }
+
+        return (float)$result[$currency]['txFee'];
+    }
 }

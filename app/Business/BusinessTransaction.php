@@ -399,4 +399,14 @@ class BusinessTransaction {
         return $this->broker->is_wallet_available($currency);
     }
 
+    /**
+    * ask to the broker the fees of withdraw for a currency
+    * @param string $currency : code of currency
+    * @return floar
+    */
+    public function get_withdraw_fees($currency)
+    {
+        return $this->broker->get_withdraw_fees($currency);
+    }
+
 }

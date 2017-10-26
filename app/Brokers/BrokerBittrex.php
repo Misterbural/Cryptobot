@@ -276,6 +276,36 @@ class BrokerBittrex implements InterfaceBroker {
             return false;
         }
 
-        return $result['result'][$currency]['IsActive'];
+        foreach ($result['result'] as $result_currency) {
+            if ($result_currency['Currency'] != $currency) {
+                continue;
+            }
+
+           return $result_currency['IsActive'];
+        }
+        return false;
+    }
+
+    /**
+    * ask to the broker the fees of withdraw for a currency
+    * @param string $currency : code of currency
+    * @return floar
+    */
+    public function get_withdraw_fees($currency)
+    {
+        $result = Bittrex::getCurrencies();
+
+        if ($result['success'] == false)
+        {
+            return false;
+        }
+        foreach ($result['result'] as $result_currency) {
+            if ($result_currency['Currency'] != $currency) {
+                continue;
+            }
+
+           return $result_currency['TxFee'];
+        }
+        return false;
     }
 }

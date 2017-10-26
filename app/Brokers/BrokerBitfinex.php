@@ -199,8 +199,6 @@ class BrokerBitfinex implements InterfaceBroker {
 
         $result = $this->bitfinex->new_deposit($currency, 'exchange');
 
-        var_dump($result);die();
-
         if (array_key_exists('error',$result) || $result["result"] == 'error')
         {
             return false;
@@ -300,7 +298,61 @@ class BrokerBitfinex implements InterfaceBroker {
     */
     public function is_wallet_available($currency)
     {
-        //@TODO
+        $currency = $this->convert_currency_code_to_currency_name($currency);
+
+        if (!$currency) {
+            return false;
+        }
+
+        $result = $this->bitfinex->new_deposit($currency, 'exchange');
+
+        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+    * ask to the broker the fees of withdraw for a currency
+    * @param string $currency : code of currency
+    * @return floar
+    */
+    public function get_withdraw_fees($currency)
+    {
+        switch($currency) {
+            case 'BTC':
+                return 0.0005;
+            case 'LTC':
+                return 0.001;
+            case 'ETH':
+                return 0.01;
+            case 'ETC':
+                return 0.01;
+            case 'ZEC':
+                return 0.001;
+            case 'DASH':
+                return 0.01;
+            case 'IOTA':
+                return 0;
+            case 'EOS':
+                return 0.1;
+            case 'SAN':
+                return 0.1;
+            case 'OMG':
+                return 0.1;
+            case 'BCH':
+                return 0.0005;
+            case 'NEO':
+                return 0;
+            case 'QTM':
+                return 0.01;
+            case 'AVT':
+                return 0.1;
+            default :
+                return false;
+        }
     }
 
     private function convert_currency_code_to_currency_name($currency_code)

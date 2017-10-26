@@ -53,7 +53,7 @@ class testtamere extends Command
         var_dump(Bittrex::getOpenOrders());
         die();
          */
-        $business_transaction = new BusinessTransaction('Bitfinex');
+        $business_transaction = new BusinessTransaction('bitfinex');
 
         $id_order_open = '2de73c55-d040-4d63-8369-b2d7e58974b4';
         $id_order_close = '10de49e1-0038-458e-850d-b5954b4870dc';
@@ -69,7 +69,7 @@ class testtamere extends Command
         var_dump($order_close);
         echo "\n\n";*/
 
-        $business_transaction->get_deposit_address("QTM");
+        var_dump($business_transaction->get_withdraw_fees("BTC"));
 
     }
 }

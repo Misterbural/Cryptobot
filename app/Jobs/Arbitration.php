@@ -168,18 +168,44 @@ class Arbitration implements ShouldQueue
 
         //Partie critique achat et vente
         //Passe les ordres d'achats
-        for ($i = 0; $i < count($orders['list']); $i++) {
-            $order = $orders['list'][$i];
+        $last = count($orders['list']) - 1;
+        while(true) {
             try
             {
-                $business_transaction_buy->buy('BTC-' . $this->currency_code_buy, $order['quantity'], $order['rate']);
+                $order_id = $business_transaction_buy->buy('BTC-' . $this->currency_code_buy, $orders['total_quantity'], $orders['list'][$last]['rate']);
             } catch (\Exception $e) {
                 sleep(1);
-                $i--;
+                continue;
             }
+            break;
         }
 
-        //comment s'assurer que tout les ordres sont passés ? annuler ce qui ne sont pas passer directement, update $orders['total_value_btc']
+
+        sleep(5);
+        //get order, cancel if open, get units filled
+        while (true) {
+            try
+            {
+                $order_id = $business_transaction_buy->cancel($order_id, 'BTC-' . $this->currency_code_buy);
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            break;
+        }
+
+        while (true) {
+            try
+            {
+                $get_order = $business_transaction_buy->get_order($order_id);
+            } catch (\Exception $e) {
+                sleep(1);
+                continue;
+            }
+            break;
+        }
+        
+        $orders['total_quantity'] = $get_order['actual_quantity'];
 
 
         //get deposit address
@@ -225,7 +251,7 @@ class Arbitration implements ShouldQueue
                 continue;
             }
 
-            if ($balances[$currency_code_sell]['available'] < $orders['total_quantity']) {
+            if ($balances[$currency_code_sell]['available'] <= $orders['total_quantity']) {
                 sleep(5);
                 continue;
             }
@@ -246,21 +272,26 @@ class Arbitration implements ShouldQueue
             break;
         }
 
+        
+        $quantity = 0;
+
+        foreach ($update_order_book_we_sell as $order_we_sell) {
+            if ($quantity + $order_we_sell['quantity'] > $orders['total_quantity']) {
+                $min_rate = $order_we_sell['rate'];
+                break;
+            }
+        }
+
         //passe les ordres de vente
-        for ($i = 0; $i < count($update_order_book_we_sell); $i++) {
-            $order_we_sell = $update_order_book_we_sell[$i]
+        while (true) {
             try
             {
-                if ($orders['total_quantity'] < $order_we_sell['quantity']) {
-                    $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $order_we_sell['rate']);
-                    break;
-                }
-                $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $order_we_sell['quantity'], $order_we_sell['rate']);
+                $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $min_rate);
             } catch (\Exception $e) {
                 sleep(1);
-                $i--;
+                continue;
             }         
-        
+            break
         }
         
     }

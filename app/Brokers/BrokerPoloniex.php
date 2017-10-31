@@ -68,6 +68,8 @@ class BrokerPoloniex implements InterfaceBroker {
             return false;
         }
 
+        $market = str_replace("-", "_", $market);
+        
         $order = $this->get_order($order_id);
         $cancel = Poloniex::cancelOrder($market, $order_id);
 

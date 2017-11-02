@@ -75,7 +75,8 @@ class CollectMarketData extends Command
                     $i--;
                     continue;
                 }
-                
+
+                $historic['result'] = $historic['result'] ?? []; 
 
                 foreach ($historic['result'] as $trade) {
 

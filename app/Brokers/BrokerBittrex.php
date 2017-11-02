@@ -172,13 +172,27 @@ class BrokerBittrex implements InterfaceBroker {
     /**
      * Get deposit address for a currency
      * @param string $currency : the currency we want address
-     * @return string address : address to deposit, if not exist, create but respond ADDRESS_GENERATING until one is available
+     * @return mixed bool|string : false if error, else deposit address
      */
     public function get_deposit_address ($currency)
     {
         $result = Bittrex::getDepositAddress($currency);
 
         if ($result['success'] == false)
+        {
+            return false;
+        }
+
+        //If address not already create, return 'ADDRESS_GENERATING', so we retry
+        $retry = 0;
+        while ($result['message'] == 'ADDRESS_GENERATING' && $retry < 10)
+        {
+            sleep(1);
+            $result = Bittrex::getDepositAddress($currency);
+            $retry ++;
+        }
+
+        if ($result['message'] == 'ADDRESS_GENERATING')
         {
             return false;
         }

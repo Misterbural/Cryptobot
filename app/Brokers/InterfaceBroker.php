@@ -48,30 +48,35 @@ interface InterfaceBroker {
      * @param string $type : 'buy' or 'Sell'
      * @param float $quantity : Quantity to buy or sell
      * @param float $rate : Rate of buying
+     * @return float : The fees for this transaction
      */
     public function compute_fees ($type, $quantity, $rate);
     
     /**
      * Get last transaction rate for market
      * @param string $market : The market we want rate
+     * @return float : The rate for the last transaction on broker for this market
      */
     public function get_market_last_rate ($market);
     
     /**
      * Get ask transaction rate for market
      * @param string $market : The market we want rate
+     * @return mixed float|bool : False if error, else the rate on ask for the market
      */
     public function get_market_ask_rate ($market);
     
     /**
      * Get bid transaction rate for market
      * @param string $market : The market we want rate
+     * @return mixed float|bool : False if error, else the rate on bid for the market
      */
     public function get_market_bid_rate ($market);
 
     /**
     * Get deposit address for a currency
     * @param string $currency : the currency we want address
+    * @return mixed bool|string : false if error, else deposit address
     */
     public function get_deposit_address ($currency);
 
@@ -80,11 +85,13 @@ interface InterfaceBroker {
     * @param string $currency : the currency we want to send
     * @param float $quantity  : the quantity of currency we want to send
     * @param string $address : the address to which send the currency
+    * @return mixed string|false : false if withdraw fail, id of the withdraw if success
     */
     public function withdraw ($currency, $quantity, $address);
 
     /**
     * get quantity of each currencies on our balances
+    * @return mixed bool|array : Bool if error, else ['currency_code' => ['available' => xx, 'on_trade' => xx], ...]
     */
     public function get_balances();
 

@@ -149,6 +149,7 @@ class BrokerBitfinex implements InterfaceBroker {
     /**
      * Get ask transaction rate for market
      * @param string $market : The market we want rate
+     * @return mixed float|bool : False if error, else the rate on ask for the market
      */
     public function get_market_ask_rate ($market)
     {
@@ -168,6 +169,7 @@ class BrokerBitfinex implements InterfaceBroker {
     /**
      * Get bid transaction rate for market
      * @param string $market : The market we want rate
+     * @return mixed float|bool : False if error, else the rate on bid for the market
      */
     public function get_market_bid_rate ($market)
     {
@@ -187,7 +189,7 @@ class BrokerBitfinex implements InterfaceBroker {
     /**
      * Get deposit address for a currency
      * @param string $currency : the currency we want address
-     * @return string address : address to deposit, if not exist, create but respond ADDRESS_GENERATING until one is available
+    * @return mixed bool|string : false if error, else deposit address
      */
     public function get_deposit_address ($currency)
     {
@@ -199,7 +201,7 @@ class BrokerBitfinex implements InterfaceBroker {
 
         $result = $this->bitfinex->new_deposit($currency, 'exchange');
 
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error', $result) || $result['result'] == 'error')
         {
             return false;
         }
@@ -212,6 +214,7 @@ class BrokerBitfinex implements InterfaceBroker {
     * @param string $currency : the currency we want to send
     * @param float $quantity  : the quantity of currency we want to send
     * @param string $address : the address to which send the currency
+    * @return mixed string|false : false if withdraw fail, id of the withdraw if success
     */
     public function withdraw ($currency, $quantity, $address)
     {
@@ -232,7 +235,8 @@ class BrokerBitfinex implements InterfaceBroker {
     }
 
     /**
-    * get quantity of currencies
+     * get quantity of currencies
+     * @return mixed bool|array : Bool if error, else ['currency_code' => ['available' => xx, 'on_trade' => xx], ...]
     */
     public function get_balances()
     {

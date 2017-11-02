@@ -135,6 +135,7 @@ class BrokerPoloniex implements InterfaceBroker {
      * @param string $type : 'buy' or 'Sell'
      * @param float $quantity : Quantity to buy or sell
      * @param float $rate : Rate of buying
+     * @return float : The fees for this transaction
      */
     public function compute_fees ($type, $quantity, $rate)
     {
@@ -144,6 +145,7 @@ class BrokerPoloniex implements InterfaceBroker {
     /**
      * Get last transaction rate for market
      * @param string $market : The market we want rate
+     * @return float : The rate for the last transaction on broker for this market
      */
     public function get_market_last_rate ($market)
     {
@@ -183,6 +185,7 @@ class BrokerPoloniex implements InterfaceBroker {
     /**
      * Get deposit address for a currency
      * @param string $currency : the currency we want address
+     * @return mixed bool|string : false if error, else deposit address
      */
     public function get_deposit_address ($currency)
     {

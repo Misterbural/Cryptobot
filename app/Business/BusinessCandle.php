@@ -78,6 +78,7 @@ class BusinessCandle {
 		$candle->volume = $volume;
 		$candle->open_time = $open_time;
 		$candle->close_time = $close_time;
+        $candle->broker = 'bittrex';
 
 		$candle->save();
 
@@ -154,6 +155,7 @@ class BusinessCandle {
 		$candle->volume = $volume;
 		$candle->open_time = $open_time;
 		$candle->close_time = $close_time;
+        $candle->broker = 'bittrex';
 
 		$candle->save();
 

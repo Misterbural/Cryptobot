@@ -91,10 +91,9 @@ class AutosellOnLost extends Command
                                         where('strategy', $this->strategy_name)->
                                         where('currencies', $market)->
                                         orderBy('created_at')->
-                                        limit(1)->
-                                        get();
+                                        first();
 
-                if (!$last_transaction->count())
+                if (!$last_transaction)
                 {
                     $last_transaction_date = new \DateTime('2000-01-01'); //Initialize to 2000 to take all transaction history
                 }
@@ -169,7 +168,6 @@ class AutosellOnLost extends Command
                 }
 
                 $transaction_result = $business_transaction->sell($market, $quantity_to_sell, $rate_to_sell);
-                $transaction_result = true;
 
                 if (!$transaction_result)
                 {

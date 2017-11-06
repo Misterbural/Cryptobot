@@ -104,8 +104,8 @@ class BusinessTransaction {
         $market_sell = explode('-', $market)[1];
 
         //Compute quantity to spend and add fees
-        $fees = $this->compute_fees('buy', $quantity, $rate);
-        $quantity_to_spend = $quantity * $rate;
+        $fees = $this->compute_fees('sell', $quantity, $rate);
+        $quantity_to_spend = $quantity;
         
         //Check if we have enough to buy
         $enough_to_buy = $business_wallet->check_can_spend($market_sell, $quantity_to_spend);

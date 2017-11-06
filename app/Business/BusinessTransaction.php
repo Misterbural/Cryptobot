@@ -64,8 +64,8 @@ class BusinessTransaction {
         $business_wallet->trade($market_sell, $quantity_to_spend);
 
         //Try to pass the order
-        $order_id = $this->broker->buy($market, $quantity, $rate);
-
+        //$order_id = $this->broker->buy($market, $quantity, $rate);
+        $order_id = true;
         //If buy fail, revert wallet trade operation
         if (!$order_id)
         {
@@ -287,8 +287,8 @@ class BusinessTransaction {
             return false;
         }
         
-        //Try to cancel the order
-        $order = $this->broker::cancelOrder($order_id);
+        //Try to get the order
+        $order = $this->broker->get_order($order_id);
         if (!$order)
         {
             return false;

@@ -72,7 +72,7 @@ class AutosellOnLost extends Command
             sleep(5);
 
             //Do verifications for all wallets
-            $wallets = Wallet::where('available', '>', 0)->get();
+            $wallets = Wallet::where('broker', $this->broker_name)->where('available', '>', 0)->get();
             foreach ($wallets as $wallet)
             {
                 
@@ -88,9 +88,10 @@ class AutosellOnLost extends Command
                 $last_transaction = Transaction::where('currencies', $market)->
                                         where('status', 'close')->
                                         where('type', 'sell')->
+                                        where('broker', $this->broker_name)->
                                         where('strategy', $this->strategy_name)->
                                         where('currencies', $market)->
-                                        orderBy('created_at')->
+                                        orderBy('created_at', 'desc')->
                                         first();
 
                 if (!$last_transaction)

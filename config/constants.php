@@ -12,6 +12,12 @@ return [
     | Use config('your_key') to get the values.
     |
     */
+    
+    'brokers' => array(
+        'bittrex',
+        'poloniex',
+        'bitfinex',
+    ),
 
     'currencies' => array(
         'LTC',

@@ -44,7 +44,7 @@ class BusinessTransaction {
      */
     public function buy ($market, $quantity, $rate)
     {
-        $business_wallet = new BusinessWallet();
+        $business_wallet = new BusinessWallet($this->broker_name);
 
         $market_sell = explode('-', $market)[0];
         $market_buy = explode('-', $market)[1];
@@ -82,6 +82,7 @@ class BusinessTransaction {
         $transaction->status = 'open';
         $transaction->type = 'buy';
         $transaction->order_id = $order_id;
+        $transaction->broker = $this->broker_name;
 
         $transaction->save(); 
 
@@ -98,7 +99,7 @@ class BusinessTransaction {
      */
     public function sell ($market, $quantity, $rate, $link_to_order = false)
     {
-        $business_wallet = new BusinessWallet();
+        $business_wallet = new BusinessWallet($this->broker_name);
 
         $market_buy = explode('-', $market)[0];
         $market_sell = explode('-', $market)[1];
@@ -136,6 +137,7 @@ class BusinessTransaction {
         $transaction->status = 'open';
         $transaction->type = 'sell';
         $transaction->order_id = $order_id;
+        $transaction->broker = $this->broker_name;
 
         if ($link_to_order)
         {
@@ -155,7 +157,7 @@ class BusinessTransaction {
     public function cancel ($order_id)
     {
         //Get transaction from db
-        $transaction = Transaction::where('order_id', $order_id)->first();
+        $transaction = Transaction::where('broker', $this->broker_name)->where('order_id', $order_id)->first();
         if (!$transaction)
         {
             return false;
@@ -181,7 +183,7 @@ class BusinessTransaction {
 
 
             //On update le wallet
-            $business_wallet = new BusinessWallet();
+            $business_wallet = new BusinessWallet($this->broker_name);
             
             $market_sell = explode('-', $transaction->currencies)[0];
             $market_buy = explode('-', $transaction->currencies)[1];
@@ -207,7 +209,7 @@ class BusinessTransaction {
 
 
             //On update le wallet
-            $business_wallet = new BusinessWallet();
+            $business_wallet = new BusinessWallet($this->broker_name);
             
             $market_buy = explode('-', $transaction->currencies)[0];
             $market_sell = explode('-', $transaction->currencies)[1];
@@ -281,7 +283,7 @@ class BusinessTransaction {
     public function validate_transaction ($order_id)
     {
         //Get transaction from db
-        $transaction = Transaction::where('order_id', $order_id)->first();
+        $transaction = Transaction::where('broker', $this->broker_name)->where('order_id', $order_id)->first();
         if (!$transaction)
         {
             return false;
@@ -307,7 +309,7 @@ class BusinessTransaction {
 
 
             //On update le wallet
-            $business_wallet = new BusinessWallet();
+            $business_wallet = new BusinessWallet($this->broker_name);
             
             $market_sell = explode('-', $transaction->currencies)[0];
             $market_buy = explode('-', $transaction->currencies)[1];
@@ -333,7 +335,7 @@ class BusinessTransaction {
 
 
             //On update le wallet
-            $business_wallet = new BusinessWallet();
+            $business_wallet = new BusinessWallet($this->broker_name);
             
             $market_buy = explode('-', $transaction->currencies)[0];
             $market_sell = explode('-', $transaction->currencies)[1];

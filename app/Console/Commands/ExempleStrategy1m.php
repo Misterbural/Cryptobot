@@ -157,7 +157,7 @@ class ExempleStrategy1m extends Command
     private function buy ($currency) {
         
         $transaction = new BusinessTransaction('bittrex' ,'test cci');
-        $wallet = new BusinessWallet();
+        $wallet = new BusinessWallet('bittrex');
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {
@@ -181,7 +181,7 @@ class ExempleStrategy1m extends Command
     private function sell ($currency) {
         
         $transaction = new BusinessTransaction('bittrex' ,'test cci');
-        $wallet = new BusinessWallet();
+        $wallet = new BusinessWallet('bittrex');
         try {
             $ticker = Bittrex::getTicker('BTC-' . $currency);
         } catch (\Exception $e) {
@@ -189,7 +189,7 @@ class ExempleStrategy1m extends Command
         }
 
         $rate = $ticker["result"]["Last"];
-        $quantity = DB::table('wallets')->where('currency', $currency)->first();
+        $quantity = DB::table('wallets')->where('broker', 'bittrex')->where('currency', $currency)->first();
         
         $fees = $transaction->compute_fees('sell', $quantity->available, $rate);
         

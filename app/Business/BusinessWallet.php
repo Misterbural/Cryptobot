@@ -14,15 +14,27 @@ use Illuminate\Support\Facades\DB;
 
 
 class BusinessWallet {
+
+    public $broker_name;
+
+    /**
+     * Constructeur
+     * @param string $broker_name : Name of the broker, used to work on the good wallet
+     */
+    public function __construct ($broker_name)
+    {
+        $this->broker_name = $broker_name;
+    }
     
     /**
      * Get wallet for currency
      * @param string $currency : Currency we want wallet for
+     * @param string $broker : The broker name
      * @return mixed Wallet|bool : The wallet object of false if not found
      */
     public function get_wallet_for_currency ($currency)
     {
-        if (!$wallet = Wallet::where('currency', $currency)->first())
+        if (!$wallet = Wallet::where('broker', $this->broker_name)->where('currency', $currency)->first())
         {
             return false;
         }
@@ -39,6 +51,7 @@ class BusinessWallet {
 	public function register_sell ($currency, $value)
 	{
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->decrement('available', $value);
 
@@ -63,6 +76,7 @@ class BusinessWallet {
         $value = $value - $to_keep;
 
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->increment('available', $value);
 
@@ -77,6 +91,7 @@ class BusinessWallet {
         }
 
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->increment('to_keep', $to_keep);
         
@@ -98,6 +113,7 @@ class BusinessWallet {
     {
         //On decrement available
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->decrement('available', $value);
 
@@ -108,6 +124,7 @@ class BusinessWallet {
 
         //On increment on_trade
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->increment('on_trade', $value);
  
@@ -129,6 +146,7 @@ class BusinessWallet {
     {
         //On decrement on_trade
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->decrement('on_trade', $value);
 
@@ -139,6 +157,7 @@ class BusinessWallet {
 
         //On increment available
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->increment('available', $value);
  
@@ -158,7 +177,7 @@ class BusinessWallet {
      */
     public function check_can_spend ($currency, $amount)
     {
-        if (!$wallet = Wallet::where('currency', $currency)->first())
+        if (!$wallet = Wallet::where('broker', $this->broker_name)->where('currency', $currency)->first())
         {
             return false;
         }
@@ -181,6 +200,7 @@ class BusinessWallet {
     public function increment_to_keep ($currency, $value)
     {
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->increment('to_keep', $value);
         
@@ -201,6 +221,7 @@ class BusinessWallet {
     public function decrement_to_keep ($currency, $value)
     {
         $updateResult = DB::table('wallets')
+                        ->where('broker', $this->broker_name)
                         ->where('currency', $currency)
                         ->decrement('to_keep', $value);
         

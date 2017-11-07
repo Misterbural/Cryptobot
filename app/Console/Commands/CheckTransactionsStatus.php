@@ -31,6 +31,13 @@ class CheckTransactionsStatus extends Command
     protected $currencies;
 
     /**
+     * List of borker we trade on
+     *
+     * @var array
+     */
+    protected $brokers;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -39,6 +46,7 @@ class CheckTransactionsStatus extends Command
     {
         parent::__construct();
         $this->currencies = config('constants.currencies');
+        $this->brokers = config('constants.brokers');
     }
 
     /**
@@ -48,28 +56,31 @@ class CheckTransactionsStatus extends Command
      */
     public function handle()
     {
-        $business_transaction = new BusinessTransaction();
+        $business_transaction = new BusinessTransaction('bittrex');
 
         //On fait tourner le robot h24
         while (1)
         {
-            $open_transactions = Transaction::where('status', 'open')->get();
-            
-            foreach ($open_transactions as $key => $open_transaction)
+            foreach ($this->brokers as $broker_name)
             {
-                $order = $business_transaction->get_order($open_transaction->order_id);
-
-                if ($order['success'] != true)
+                $open_transactions = Transaction::where('broker', $broker_name)->where('status', 'open')->get();
+                
+                foreach ($open_transactions as $key => $open_transaction)
                 {
-                    continue;
-                }
+                    $order = $business_transaction->get_order($open_transaction->order_id);
 
-                if ($order['result']['IsOpen'] == true)
-                {
-                    continue;
-                }
+                    if ($order['success'] != true)
+                    {
+                        continue;
+                    }
 
-                $business_transaction->validate_transaction($order_id);
+                    if ($order['result']['IsOpen'] == true)
+                    {
+                        continue;
+                    }
+
+                    $business_transaction->validate_transaction($order_id);
+                }
             }
         }
     }

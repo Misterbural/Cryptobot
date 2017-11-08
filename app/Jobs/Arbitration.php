@@ -296,7 +296,7 @@ class Arbitration implements ShouldQueue
         while (true) {
             try
             {
-                $order_sell_id = $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $min_rate);
+                $order_sell_id = $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $min_rate, $order_id);
             } catch (\Exception $e) {
                 sleep(1);
                 continue;

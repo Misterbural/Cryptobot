@@ -375,7 +375,8 @@ class BusinessTransaction {
         $business_wallet_send = new BusinessWallet($this->broker_name);
         $business_wallet_send->register_sell ($currency, $quantity)
 
-        $business_wallet_receive = new BusinessWallet(strtolower($to_broker));
+        $to_broker = strtolower($to_broker);
+        $business_wallet_receive = new BusinessWallet($to_broker);
         $business_wallet_receive->register_buy ($currency, $quantity - $fees);
 
         return $return;

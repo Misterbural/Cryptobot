@@ -368,9 +368,17 @@ class BusinessTransaction {
     * @param float $quantity  : the quantity of currency we want to send
     * @param string $address : the address to which send the currency
     */
-    public function withdraw ($currency, $quantity, $address)
+    public function withdraw ($currency, $quantity, $address, $to_broker, $fees)
     {
-        return $this->broker->withdraw($currency, $quantity, $address);
+        $return = $this->broker->withdraw($currency, $quantity, $address);
+
+        $business_wallet_send = new BusinessWallet($this->broker_name);
+        $business_wallet_send->register_sell ($currency, $quantity)
+
+        $business_wallet_receive = new BusinessWallet(strtolower($to_broker);
+        $business_wallet_receive->register_buy ($currency, $quantity - $fees);
+
+        return $return;
     }
 
     /**

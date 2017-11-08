@@ -255,6 +255,46 @@ return [
             "bittrex" => "QTUM",
             "bitfinex" => "QTM",
         ),
+        "Verge" => array(
+            "bittrex" => "XVG",
+        ),
+        "Patientory" => array(
+            "bittrex" => "PTOY",
+        ),
+        "Status" => array(
+            "bittrex" => "SNT",
+        ),
+        "Nexium" => array(
+            "bittrex" => "NXC",
+        ),
+        "Monero" => array(
+            "bittrex" => "XMR",
+        ),
+        "Red coin" => array(
+            "bittrex" => "RDD",
+        ),
+        "Verge" => array(
+            "bittrex" => "XVG",
+        ),
+        "Bitbay" => array(
+            "bittrex" => "BAY",
+        ),
+        "TRUST" => array(
+            "bittrex" => "TRUST",
+        ),
+        "Eboost" => array(
+            "bittrex" => "EBST",
+        ),
+        "Ripple" => array(
+            "bittrex" => "XRP",
+        ),
+        "Edgeless" => array(
+            "bittrex" => "EDG",
+        ),
+        "Coval" => array(
+            "bittrex" => "COVAL",
+        ),
+
     ),
 
     'bitfinex' => array(

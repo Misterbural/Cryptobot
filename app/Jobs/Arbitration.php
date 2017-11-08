@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Business\BusinessTransaction;
+use Log;
 
 class Arbitration implements ShouldQueue
 {
@@ -41,11 +42,15 @@ class Arbitration implements ShouldQueue
     {
         $business_transaction_buy = new BusinessTransaction($this->broker_buy);
         $business_transaction_sell = new BusinessTransaction($this->broker_sell);
+        $timestamp = time();
+
+        Log::info("[" . $timestamp . "] buy " . $this->currency_code_buy . " on " . $this->broker_buy . " and sell on " . $this->broker_sell);
 
         while (true) {
             try
             {
                 if (!$business_transaction_buy->is_wallet_available($this->currency_code_buy) || !$business_transaction_sell->is_wallet_available($this->currency_code_sell)) {
+                    Log::info("Wallet is offline");
                     return false;
                 }
                 
@@ -154,6 +159,8 @@ class Arbitration implements ShouldQueue
         $orders['btc_value'] -= $withdraw_fees * $order_sell_rate;
         $orders['profit'] -= $withdraw_fees * $order_sell_rate;
 
+        Log::info("[" . $timestamp . "] array achat : " . print_r($orders));
+
         //verifier que meme avec les fees de withdraw on reste rentable
         if ($orders['total_quantity'] < 0 || $orders['profit'] < 0) {
             return false;
@@ -163,6 +170,7 @@ class Arbitration implements ShouldQueue
         $minimum_order_size_sell = $business_transaction_sell->get_minimum_order_size('BTC-' . $currency_code_sell);
 
         if ($orders['btc_value'] < max($minimum_order_size_buy, $minimum_order_size_sell)) {
+            Log::info("[" . $timestamp . "] quantité insuffisante a acheté");
             return false;
         }
 
@@ -207,6 +215,8 @@ class Arbitration implements ShouldQueue
         
         $orders['total_quantity'] = $get_order['actual_quantity'];
 
+        Log::info("[" . $timestamp . "] quantité acheté : " . $orders['total_quantity']);
+
 
         //get deposit address
         while (true) {
@@ -228,7 +238,7 @@ class Arbitration implements ShouldQueue
         while (true) {
             try
             {
-                $business_transaction_buy->withdraw($this->currency_code_buy, $orders['total_quantity'], $deposit_address);
+                $business_transaction_buy->withdraw($this->currency_code_buy, $orders['total_quantity'], $deposit_address, $this->broker_sell, $withdraw_fees);
             } catch (\Exception $e) {
                 sleep(1);
                 continue;
@@ -280,13 +290,13 @@ class Arbitration implements ShouldQueue
                 $min_rate = $order_we_sell['rate'];
                 break;
             }
-        }
+        } 
 
         //passe les ordres de vente
         while (true) {
             try
             {
-                $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $min_rate);
+                $order_sell_id = $business_transaction_sell->sell("BTC-" . $this->currency_code_sell, $orders['total_quantity'], $min_rate);
             } catch (\Exception $e) {
                 sleep(1);
                 continue;
@@ -294,5 +304,9 @@ class Arbitration implements ShouldQueue
             break
         }
         
+        sleep(5);
+
+        Log::info("[" . $timestamp . "] information vente : " print_r($business_transaction_sell->get_order($order_sell_id)));
+
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Business\BusinessTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Jobs\Arbitration;
-
+use Log;
 
 class SearchArbitration extends Command
 {
@@ -52,13 +52,13 @@ class SearchArbitration extends Command
 
         $bittrex_transaction = new BusinessTransaction('bittrex' ,'arbitration');
         $poloniex_transaction = new BusinessTransaction('poloniex' ,'arbitration');
-        $poloniex_transaction = new BusinessTransaction('bitfinex' ,'arbitration');
+        $bitfinex_transaction = new BusinessTransaction('bitfinex' ,'arbitration');
 
         while (true) {
-
+            
             //Pour chaque monnaies
             foreach ($this->currencies as $currency => $code_broker) {
-                
+        
                 if (count($code_broker) < 2) {
                     continue;
                 }
@@ -72,18 +72,18 @@ class SearchArbitration extends Command
                 while (true) {
                     try {
                         if (array_key_exists('bittrex', $code_broker)) {
-                            $ask['bittrex'] = $bittrex_transaction->get_market_ask_rate('BTC-' . $code_broker['bittrex']);
-                            $bid['bittrex'] = $bittrex_transaction->get_market_bid_rate('BTC-' . $code_broker['bittrex']);
+                            $ask['bittrex'] = (float)$bittrex_transaction->get_market_ask_rate('BTC-' . $code_broker['bittrex']);
+                            $bid['bittrex'] = (float)$bittrex_transaction->get_market_bid_rate('BTC-' . $code_broker['bittrex']);
                         }
 
                         if (array_key_exists('poloniex', $code_broker)) {
-                            $ask['poloniex'] = $poloniex_transaction->get_market_ask_rate('BTC-' . $code_broker['poloniex']);
-                            $bid['poloniex'] = $poloniex_transaction->get_market_bid_rate('BTC-' . $code_broker['poloniex']);
+                            $ask['poloniex'] = (float)$poloniex_transaction->get_market_ask_rate('BTC-' . $code_broker['poloniex']);
+                            $bid['poloniex'] = (float)$poloniex_transaction->get_market_bid_rate('BTC-' . $code_broker['poloniex']);
                         }
 
                         if (array_key_exists('bitfinex', $code_broker)) {
-                            $ask['bitfinex'] = $bitfinex_transaction->get_market_ask_rate('BTC-' . $code_broker['bitfinex']);
-                            $bid['bitfinex'] = $bitfinex_transaction->get_market_bid_rate('BTC-' . $code_broker['bitfinex']);
+                            $ask['bitfinex'] = (float)$bitfinex_transaction->get_market_ask_rate('BTC-' . $code_broker['bitfinex']);
+                            $bid['bitfinex'] = (float)$bitfinex_transaction->get_market_bid_rate('BTC-' . $code_broker['bitfinex']);
                         }
                     } catch (\Exception $e) {
                         sleep(1);
@@ -99,10 +99,16 @@ class SearchArbitration extends Command
                 
                 $broker_sell = array_keys($bid, max($bid))[0];
                 $price_sell = $bid[$broker_sell];
-
+                
+                if (!$price_buy) {
+                    continue;
+                }
                 $profit = ($price_sell - $price_buy) / $price_buy * 100;
+                Log::info("profit : " . round($profit, 2) . "% for " . $code_broker[$broker_buy] . " on " . $broker_buy . " and sell on " . $broker_sell);
 
-                if ($profit > 1.5) {
+
+                if ($profit > 1) {
+                    Log::info("arbitrage found");
                     Arbitration::dispatch($code_broker[$broker_buy], $broker_buy, $code_broker[$broker_sell], $broker_sell);
                 }
                 sleep(1);

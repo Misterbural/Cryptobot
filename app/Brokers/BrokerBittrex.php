@@ -120,6 +120,14 @@ class BrokerBittrex implements InterfaceBroker {
     {
         return $quantity * $rate * 0.25 / 100;
     }
+
+    /**
+     * Return fees rate
+     */ 
+    public function get_fees_rate()
+    {
+        return 0.25;
+    }
     
     /**
      * Get last transaction rate for market
@@ -233,8 +241,8 @@ class BrokerBittrex implements InterfaceBroker {
         $balances = [];
 
         foreach ($result['result'] as $balance) {
-            $balances[$balance['Currency']]['available'] = $balance['Available'];
-            $balances[$balance['Currency']]['on_trade'] = $balance['Balance'] - $balance['Available'];
+            $balances[strtoupper($balance['Currency'])]['available'] = $balance['Available'];
+            $balances[strtoupper($balance['Currency'])]['on_trade'] = $balance['Balance'] - $balance['Available'];
         }
 
         return $balances;

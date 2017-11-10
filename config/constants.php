@@ -114,7 +114,7 @@ return [
             "bittrex" => "STRAT",
         ),
         "Stellar Lumens" => array( // ~ 10 secondes
-            "poloniex" => "STR",
+           // "poloniex" => "STR",
             "bittrex" => "XLM",
         ),
         "Ark" => array( // ~ 10 secondes

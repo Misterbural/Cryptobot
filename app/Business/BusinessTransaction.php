@@ -154,7 +154,7 @@ class BusinessTransaction {
      * @param string $order_id : The id of the order to cancel
      * @return mixed : false if fail, true else
      */
-    public function cancel ($order_id)
+    public function cancel ($order_id, $market = false)
     {
         //Get transaction from db
         $transaction = Transaction::where('broker', $this->broker_name)->where('order_id', $order_id)->first();
@@ -164,7 +164,7 @@ class BusinessTransaction {
         }
 
         //Try to cancel the order
-        $order = $this->broker::cancelOrder($order_id);
+        $order = $this->broker::cancelOrder($order_id, $market);
         if (!$order)
         {
             return false;
@@ -246,6 +246,14 @@ class BusinessTransaction {
     public function compute_fees ($type, $quantity, $rate)
     {
         return $this->broker->compute_fees($type, $quantity, $rate);
+    }
+
+    /**
+     * Return fees rate
+     */ 
+    public function get_fees_rate()
+    {
+        return $this->broker->get_fees_rate();
     }
 
     /**

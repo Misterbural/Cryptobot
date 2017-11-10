@@ -141,6 +141,14 @@ class BrokerPoloniex implements InterfaceBroker {
     {
         return $quantity * $rate * 0.25 / 100;
     }
+    
+    /**
+     * Return fees rate
+     */ 
+    public function get_fees_rate()
+    {
+        return 0.25;
+    }
 
     /**
      * Get last transaction rate for market
@@ -257,8 +265,8 @@ class BrokerPoloniex implements InterfaceBroker {
         $balances = [];
 
         foreach ($result as $currency => $balance) {
-            $balances[$currency]['available'] = $balance['available'];
-            $balances[$currency]['on_trade'] = $balance['onOrders'];
+            $balances[strtoupper($currency)]['available'] = $balance['available'];
+            $balances[strtoupper($currency)]['on_trade'] = $balance['onOrders'];
         }
         
         return $balances;

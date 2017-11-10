@@ -36,7 +36,7 @@ class BrokerBitfinex implements InterfaceBroker {
         $market = $this->convert_currency_code_to_code_pair($currencies[1]) .  $this->convert_currency_code_to_code_pair($currencies[0]);
 
         $result = $this->bitfinex->new_order($market, (string)$quantity, (string)$rate, 'bitfinex', 'buy', 'limit');
-
+        var_dump($result);die();
         if (array_key_exists('error',$result) || $result["result"] == 'error')
         {
             return false;
@@ -93,7 +93,7 @@ class BrokerBitfinex implements InterfaceBroker {
     public function get_order ($order_id)
     {
         $result = $this->bitfinex->get_order($order_id);
-
+        var_dump($result);
         if (array_key_exists('error',$result) || $result["result"] == 'error')
         {
             return false;
@@ -126,7 +126,15 @@ class BrokerBitfinex implements InterfaceBroker {
     {
         return $quantity * $rate * 0.2 / 100;
     }
-    
+
+    /**
+     * Return fees rate
+     */ 
+    public function get_fees_rate()
+    {
+        return 0.2;
+    }
+
     /**
      * Get last transaction rate for market
      * @param string $market : The market we want rate
@@ -242,19 +250,19 @@ class BrokerBitfinex implements InterfaceBroker {
     {
         $result = $this->bitfinex->get_balances();
 
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error',$result))
         {
             return false;
         }
 
         $balances = [];
-
-        foreach ($result['result'] as $balance) {
+        
+        foreach ($result as $balance) {
             if ($balance["type"] != "exchange") {
                 continue;
             }
-            $balances[$balance['currency']]['available'] = $balance['available'];
-            $balances[$balance['currency']]['on_trade'] = $balance['amount'] - $balance['available'];
+            $balances[strtoupper($balance['currency'])]['available'] = $balance['available'];
+            $balances[strtoupper($balance['currency'])]['on_trade'] = $balance['amount'] - $balance['available'];
         }
 
         return $balances;
@@ -271,7 +279,7 @@ class BrokerBitfinex implements InterfaceBroker {
 
         $result = $this->bitfinex->get_book($market);
         
-        if (array_key_exists('error',$result) || $result["result"] == 'error')
+        if (array_key_exists('error',$result))
         {
             return false;
         }
@@ -349,7 +357,7 @@ class BrokerBitfinex implements InterfaceBroker {
             case 'BCH':
                 return 0.0005;
             case 'NEO':
-                return 0;
+                return 0.1;
             case 'QTM':
                 return 0.01;
             case 'AVT':

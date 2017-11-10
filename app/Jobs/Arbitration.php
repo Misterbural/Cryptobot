@@ -56,6 +56,9 @@ class Arbitration implements ShouldQueue
                 
             } catch (\Exception $e) {
                 sleep(1);
+                var_dump($e->getMessage());
+                var_dump($e->getFile());
+                var_dump($e->getLine());
                 continue;
             }
             break;
@@ -71,6 +74,9 @@ class Arbitration implements ShouldQueue
                 $balances = $business_transaction_buy->get_balances();
             } catch (\Exception $e) {
                 sleep(1);
+                var_dump($e->getMessage());
+                var_dump($e->getFile());
+                var_dump($e->getLine());
                 continue;
             }
             break;
@@ -87,18 +93,22 @@ class Arbitration implements ShouldQueue
 
         while(true) {
             try {
-                $withdraw_fees = $this->broker_buy->get_withdraw_fees($this->currency_code_buy);
+                $withdraw_fees = $business_transaction_buy->get_withdraw_fees($this->currency_code_buy);
             } catch (\Exception $e) {
                 sleep(1);
+                var_dump($e->getMessage());
+                var_dump($e->getFile());
+                var_dump($e->getLine());
                 continue;
             }
             break;
         }
         
+        $fees_rate = $business_transaction_buy->get_fees_rate();
         $order_sell_index = 0;
         $order_sell_rate = $order_book_we_sell[$order_sell_index]['rate'];
         $limit_buy_quantity = $order_book_we_sell[$order_sell_index]['quantity'];
-        $limit_buy_btc = $balances['BTC']['available'];
+        $limit_buy_btc = $balances['BTC']['available'] / (1 + $fees_rate /100);
 
         $orders = array(
             "total_quantity" => 0,
@@ -113,7 +123,7 @@ class Arbitration implements ShouldQueue
 
             $order_we_buy = $order_book_we_buy[$i];
 
-            if ($order_we_buy['rate'] > $order_sell_rate * 0.985) {
+            if ($order_we_buy['rate'] > $order_sell_rate * 0.99) {
                 break;
             }
 
@@ -147,29 +157,30 @@ class Arbitration implements ShouldQueue
 
             $orders['total_quantity'] += $order['quantity'];
             $orders['total_btc_value'] += $order['btc_value'];
-            $orders['profit'] += ($order['quantity'] * $order_sell_rate['rate']) - ($order['quantity'] * $order_we_buy['rate']);
+            $orders['profit'] += ($order['quantity'] * $order_sell_rate) - ($order['quantity'] * $order['rate']);
             $orders['list'][] = $order;
-
+            
             if ($last) {
                 break;
             }
         }
+        Log::info("withdraw : " . $withdraw_fees );
+        $orders['total_quantity'] = $orders['total_quantity'] - $withdraw_fees;
+        $orders['total_btc_value'] = $orders['total_btc_value'] - $withdraw_fees * $order_sell_rate;
+        $orders['profit'] = $orders['profit'] - $withdraw_fees * $order_sell_rate;
 
-        $orders['total_quantity'] -= $withdraw_fees;
-        $orders['btc_value'] -= $withdraw_fees * $order_sell_rate;
-        $orders['profit'] -= $withdraw_fees * $order_sell_rate;
-
-        Log::info("[" . $timestamp . "] array achat : " . print_r($orders));
+        Log::info("[" . $timestamp . "] array achat : " . print_r($orders, true));
 
         //verifier que meme avec les fees de withdraw on reste rentable
         if ($orders['total_quantity'] < 0 || $orders['profit'] < 0) {
+            Log::info("Not enought quantity for profit with withdraw fees");
             return false;
         }
 
-        $minimum_order_size_buy = $business_transaction_buy->get_minimum_order_size('BTC-' . $currency_code_buy);
-        $minimum_order_size_sell = $business_transaction_sell->get_minimum_order_size('BTC-' . $currency_code_sell);
+        $minimum_order_size_buy = $business_transaction_buy->get_minimum_order_size('BTC-' . $this->currency_code_buy);
+        $minimum_order_size_sell = $business_transaction_sell->get_minimum_order_size('BTC-' . $this->currency_code_sell);
 
-        if ($orders['btc_value'] < max($minimum_order_size_buy, $minimum_order_size_sell)) {
+        if ($orders['total_btc_value'] < max($minimum_order_size_buy, $minimum_order_size_sell)) {
             Log::info("[" . $timestamp . "] quantité insuffisante a acheté");
             return false;
         }
@@ -201,7 +212,7 @@ class Arbitration implements ShouldQueue
             }
             break;
         }
-
+        var_dump($order_id);
         while (true) {
             try
             {
@@ -212,7 +223,7 @@ class Arbitration implements ShouldQueue
             }
             break;
         }
-        
+        die();        
         $orders['total_quantity'] = $get_order['actual_quantity'];
 
         Log::info("[" . $timestamp . "] quantité acheté : " . $orders['total_quantity']);
@@ -301,12 +312,12 @@ class Arbitration implements ShouldQueue
                 sleep(1);
                 continue;
             }         
-            break
+            break;
         }
         
         sleep(5);
 
-        Log::info("[" . $timestamp . "] information vente : " print_r($business_transaction_sell->get_order($order_sell_id)));
+        Log::info("[" . $timestamp . "] information vente : " . print_r($business_transaction_sell->get_order($order_sell_id)));
 
     }
 }

@@ -53,6 +53,11 @@ interface InterfaceBroker {
     public function compute_fees ($type, $quantity, $rate);
     
     /**
+    * Return fees rate
+    */
+    public function get_fees_rate(); 
+        
+    /**
      * Get last transaction rate for market
      * @param string $market : The market we want rate
      * @return float : The rate for the last transaction on broker for this market

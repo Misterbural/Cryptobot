@@ -17,7 +17,7 @@ class AutosellOnLost extends Command
      *
      * @var string
      */
-    protected $signature = 'cryptobot:autosell_on_lost';
+    protected $signature = 'cryptobot:autosell_on_lost {max_date}';
 
     /**
      * The console command description.
@@ -62,13 +62,15 @@ class AutosellOnLost extends Command
      */
     public function handle()
     {
+        $max_date = new \DateTime($this->argument('max_date'));
         $business_transaction = new BusinessTransaction($this->broker_name, $this->strategy_name);
 
         //On fait tourner le robot h24
-        while (1)
+        //while (1)
+        if(1)
         {
             //Sleep for few second to preserve processor
-            sleep(5);
+            //sleep(5);
 
             //Do verifications for all wallets
             $wallets = Wallet::where('broker', $this->broker_name)->where('available', '>', 0)->get();
@@ -117,7 +119,8 @@ class AutosellOnLost extends Command
                 }
 
                 //We get all candles on 1m since this date
-                $candles = Candle_1m::where('created_at', '>', $last_transaction_date)->where('currencies', $market)->orderBy('close_time')->get();
+                //$candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('currencies', $market)->orderBy('close_time')->get();
+                $candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('close_time', '<', $max_date)->where('currencies', $market)->orderBy('close_time')->get();
 
                 //We get the candle with the max close price for the period
                 $max_price = false;
@@ -193,7 +196,8 @@ class AutosellOnLost extends Command
 
 
                 //If we are here, then there is probably a panic movement, and we must sell as quick as possible for bitcoin
-                $rate_to_sell = $business_transaction->broker->get_market_bid_rate($market); //Using bid rate for very quick sell
+                //$rate_to_sell = $business_transaction->broker->get_market_bid_rate($market); //Using bid rate for very quick sell
+                $rate_to_sell = $last_candle->close_price;
                 $quantity_to_sell = $wallet->available;
                 
                 if (!$rate_to_sell)
@@ -202,10 +206,32 @@ class AutosellOnLost extends Command
                     continue;
                 }
 
-                $transaction_result = $business_transaction->sell($market, $quantity_to_sell, $rate_to_sell, $buy_transaction_to_link);
+                //$transaction_result = $business_transaction->sell($market, $quantity_to_sell, $rate_to_sell, $buy_transaction_to_link);
+                
+                $transaction_fees = $business_transaction->broker->compute_fees('sell', $quantity_to_sell, $rate_to_sell);
+                $transaction = new Transaction;
+                $transaction->strategy = $this->strategy_name;
+                $transaction->currencies = $market;
+                $transaction->created_at = $last_candle->close_time;
+                $transaction->updated_at = $last_candle->close_time;
+                $transaction->quantity = $quantity_to_sell;
+                $transaction->rate = $rate_to_sell;
+                $transaction->fees = $transaction_fees;
+                $transaction->status = 'close';
+                $transaction->type = 'sell';
+                $transaction->order_id = sha1(uniqid().rand(0,1000));
+                $transaction->broker = $this->broker_name;
+
+                $transaction->save();
+                
+                $wallet_btc = Wallet::where('broker', $this->broker_name)->where('currency', 'BTC')->first();
+                $business_wallet = new BusinessWallet($this->broker_name);
+                $business_wallet->register_buy($wallet_btc['currency'], $quantity_to_sell * $rate_to_sell - $transaction_fees);
+                $business_wallet->register_sell($wallet['currency'], $quantity_to_sell);
 
                 echo "Transaction of " . $quantity_to_sell . " " . $market . " for a rate of " . $rate_to_sell . " passed.\n";
 
+                $transaction_result = true;
                 if (!$transaction_result)
                 {
                     echo "Transaction of " . $quantity_to_sell . " " . $market . " for a rate of " . $rate_to_sell . " failed.\n";

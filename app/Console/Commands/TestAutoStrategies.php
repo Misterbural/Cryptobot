@@ -82,8 +82,11 @@ class TestAutoStrategies extends Command
         echo "Before start we have " . $total_bitcoin_value . " Bitcoins !\n";
 
         $candles = Candle_1m::select('close_time')->groupBy('close_time')->orderBy('close_time')->get();
+        $count = 0;
+        $start_time = new \DateTime();
         foreach ($candles as $candle)
         {
+            $count ++;
             $d = new \DateTime($candle->close_time);
             echo "Try buy before " . $d->format('Y-m-d H:i:s') . ".\n";
             Artisan::call('cryptobot:' . $this->buy_strategy_name, [
@@ -96,6 +99,13 @@ class TestAutoStrategies extends Command
             ]);
             
             echo "--------------\n";
+            
+            if ($count%100 == 0)
+            {
+                $end_time = new \DateTime();
+
+                file_put_contents('./storage/benchmark-nopdo.log', "Do " . $count . " candles in " . ($end_time->getTimestamp() - $start_time->getTimestamp()) . "s.\n");
+            }
         }
         
         $wallets = Wallet::where('broker', $this->broker_name)->where('available', '>', 0)->get();

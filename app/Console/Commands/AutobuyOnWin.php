@@ -17,7 +17,7 @@ class AutobuyOnWin extends Command
      *
      * @var string
      */
-    protected $signature = 'cryptobot:autobuy_on_win';
+    protected $signature = 'cryptobot:autobuy_on_win {max_date}';
 
     /**
      * The console command description.
@@ -71,19 +71,20 @@ class AutobuyOnWin extends Command
      */
     public function handle()
     {
+        $max_date = new \DateTime($this->argument('max_date'));
         $business_transaction = new BusinessTransaction($this->broker_name, $this->strategy_name);
 
         //On fait tourner le robot h24
-        while (1)
+        //while (1)
+        if(1)
         {
             //Sleep for few second to preserve processor
-            sleep(5);
+            //sleep(5);
 
             //Do verifications for all wallets
             $wallets = Wallet::where('broker', $this->broker_name)->get();
             foreach ($wallets as $wallet)
             {
-                
                 //We skip BTC who dont work the same way
                 if ($wallet->currency == 'BTC')
                 {
@@ -92,12 +93,11 @@ class AutobuyOnWin extends Command
 
                 $market = 'BTC-' . $wallet->currency;
 
-                echo "Search transactions for market " . $market . "\n";
+                echo "SELL - Search transactions for market " . $market . "\n";
 
                 //Get the last complete sell or buy transaction for this strategy and wallet
                 $last_transaction = Transaction::where('currencies', $market)->
                                     where('broker', $this->broker_name)->
-                                    where('currencies', $market)->
                                     where(
                                         function ($q)
                                         {
@@ -132,7 +132,8 @@ class AutobuyOnWin extends Command
                 }
 
                 //We get all candles on 1m since this date
-                $candles = Candle_1m::where('created_at', '>', $last_transaction_date)->where('currencies', $market)->orderBy('close_time')->get();
+                //$candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('currencies', $market)->orderBy('close_time')->get();
+                $candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('close_time', '<', $max_date)->where('currencies', $market)->orderBy('close_time')->get();
 
                 //We get the candle with the max close price for the period
                 $min_price = false;
@@ -213,7 +214,8 @@ class AutobuyOnWin extends Command
 
 
                 //If we are here, then there is probably a go up movement, and we must buy as quick as possible
-                $rate_to_buy = $business_transaction->broker->get_market_ask_rate($market);
+                //$rate_to_buy = $business_transaction->broker->get_market_ask_rate($market);
+                $rate_to_buy = $last_candle->close_price;
 
                 //We compute the quantity_to_buy from the maximum quantity to bitcoin we are agree to spend
                 $wallet_btc = Wallet::where('broker', $this->broker_name)->where('currency', 'BTC')->first();
@@ -241,10 +243,31 @@ class AutobuyOnWin extends Command
                     continue;
                 }
 
-                $transaction_result = $business_transaction->buy($market, $quantity_to_buy, $rate_to_buy);
+                //$transaction_result = $business_transaction->buy($market, $quantity_to_buy, $rate_to_buy);
+
+                $transaction_fees = $business_transaction->broker->compute_fees('buy', $quantity_to_buy, $rate_to_buy);
+                $transaction = new Transaction;
+                $transaction->strategy = $this->strategy_name;
+                $transaction->currencies = $market;
+                $transaction->created_at = $last_candle->close_time;
+                $transaction->updated_at = $last_candle->close_time;
+                $transaction->quantity = $quantity_to_buy;
+                $transaction->rate = $rate_to_buy;
+                $transaction->fees = $transaction_fees;
+                $transaction->status = 'close';
+                $transaction->type = 'buy';
+                $transaction->order_id = sha1(uniqid().rand(0,1000));
+                $transaction->broker = $this->broker_name;
+
+                $transaction->save();
+                
+                $business_wallet = new BusinessWallet($this->broker_name);
+                $business_wallet->register_buy($wallet['currency'], $quantity_to_buy);
+                $business_wallet->register_sell($wallet_btc['currency'], $quantity_btc_to_spend + $transaction_fees);
 
                 echo "Transaction of " . $quantity_to_buy . " " . $market . " for a rate of " . $rate_to_buy . " passed.\n";
 
+                $transaction_result=true;
                 if (!$transaction_result)
                 {
                     echo "Transaction of " . $quantity_to_buy . " " . $market . " for a rate of " . $rate_to_buy . " failed.\n";

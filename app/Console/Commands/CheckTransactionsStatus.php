@@ -67,19 +67,27 @@ class CheckTransactionsStatus extends Command
                 
                 foreach ($open_transactions as $key => $open_transaction)
                 {
+                    echo "Try validate order " . $open_transaction->order_id . "...";
                     $order = $business_transaction->get_order($open_transaction->order_id);
-
-                    if ($order['success'] != true)
+                
+                    if (!$order)
                     {
+                        echo "not found\n";
+                        continue;
+                    }
+                    
+                    echo "found\n";
+
+                    if ($order['open'] == true)
+                    {
+                        echo "  Order still open.\n";
                         continue;
                     }
 
-                    if ($order['result']['IsOpen'] == true)
-                    {
-                        continue;
-                    }
-
-                    $business_transaction->validate_transaction($order_id);
+                    echo "  Validate Order...";
+                    $result = $business_transaction->validate_transaction($open_transaction->order_id);
+                    
+                    echo ($result ? 'ok' : 'ko') . "\n";
                 }
             }
         }

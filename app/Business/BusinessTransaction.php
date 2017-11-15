@@ -64,12 +64,13 @@ class BusinessTransaction {
         $business_wallet->trade($market_sell, $quantity_to_spend);
 
         //Try to pass the order
-        //$order_id = $this->broker->buy($market, $quantity, $rate);
-        $order_id = true;
+        $order_id = $this->broker->buy($market, $quantity, $rate);
+        
         //If buy fail, revert wallet trade operation
         if (!$order_id)
         {
             $business_wallet->untrade($market_sell, $quantity_to_spend);
+            return false;
         }
 
         //Save transaction in db
@@ -125,6 +126,7 @@ class BusinessTransaction {
         if (!$order_id)
         {
             $business_wallet->untrade($market_sell, $quantity_to_spend);
+            return false;
         }
         
         //Save transaction in db
@@ -164,7 +166,7 @@ class BusinessTransaction {
         }
 
         //Try to cancel the order
-        $order = $this->broker::cancelOrder($order_id, $market);
+        $order = $this->broker->cancel($order_id, $market);
         if (!$order)
         {
             return false;
@@ -313,6 +315,8 @@ class BusinessTransaction {
             $transaction->fees = $order['actual_fees'];
             $transaction->status = 'close';
 
+            echo "Transaction buy actual_rate = " . $order['actual_rate'] . " vs " . $transaction->rate . " actual fees = " . $order['actual_fees'] . " vs " . $transaction->fees . "\n";
+
             $transaction->save();
 
 
@@ -325,11 +329,14 @@ class BusinessTransaction {
             //Compute sell amount from real quantity, rate and fees
             $actual_sell_amount = $order['actual_quantity'] * $order['actual_rate'] + $order['actual_fees'];
             $previsionnal_sell_amount = $order['quantity'] * $order['rate'] + $order['fees'];
+            $actual_buy_quantity = $order['actual_quantity'];
+
+            echo "Actual sell amount = " . $actual_sell_amount . " vs " . $previsionnal_sell_amount . " actual buy = " . $actual_buy_quantity . "\n";
 
             //On update le wallet
             $business_wallet->register_sell($market_sell, $actual_sell_amount);
             $business_wallet->untrade($market_sell, $previsionnal_sell_amount);
-            $business_wallet->register_buy($market_buy, $order['actual_quantity']);
+            $business_wallet->register_buy($market_buy, $actual_buy_quantity);
         }
         elseif ($transaction['type'] == 'sell')
         {
@@ -340,6 +347,8 @@ class BusinessTransaction {
             $transaction->status = 'close';
 
             $transaction->save();
+            
+            echo "Transaction sell actual_rate = " . $order['actual_rate'] . " vs " . $transaction->rate . " actual fees = " . $order['actual_fees'] . " vs " . $transaction->fees . "\n";
 
 
             //On update le wallet
@@ -349,13 +358,16 @@ class BusinessTransaction {
             $market_sell = explode('-', $transaction->currencies)[1];
 
             //Compute sell amount from real quantity, rate
-            $actual_sell_amount = $order['actual_quantity'] * $order['actual_rate'];
-            $previsionnal_sell_amount = $order['quantity'] * $order['rate'];
+            $actual_sell_amount = $order['actual_quantity'];
+            $previsionnal_sell_amount = $order['quantity'];
+            $actual_buy_quantity = $order['actual_quantity'] * $order['actual_rate'] - $order['actual_fees'];
+
+            echo "Actual sell amout = " . $actual_sell_amount . " vs " . $previsionnal_sell_amount . " actual buy = " . $actual_buy_quantity . "\n";
 
             //On update le wallet
             $business_wallet->register_sell($market_sell, $actual_sell_amount);
             $business_wallet->untrade($market_sell, $previsionnal_sell_amount);
-            $business_wallet->register_buy($market_buy, $order['actual_quantity'] - $order['actual_fees']);
+            $business_wallet->register_buy($market_buy, $actual_buy_quantity); 
         }
 
         return true;

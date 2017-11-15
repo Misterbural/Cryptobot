@@ -63,7 +63,7 @@ class BrokerBittrex implements InterfaceBroker {
         $order = $this->get_order($order_id);
         $cancel = Bittrex::cancelOrder($order_id);
 
-        if ($result['success'] == false)
+        if ($cancel['success'] == false)
         {
             return false;
         }

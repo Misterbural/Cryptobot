@@ -8,6 +8,7 @@ use App\Business\BusinessTransaction;
 use App\Business\BusinessWallet;
 use App\Models\Transaction;
 use App\Models\Candle_1m;
+use App\Models\Candle_5m;
 use App\Models\Wallet;
 use Bittrex;
 
@@ -47,7 +48,7 @@ class TestAutoStrategies extends Command
         //On fixe les différents reglages
         $this->broker_name = 'bittrex';
         $this->sell_strategy_name = 'autosell_on_lost';
-        $this->buy_strategy_name = 'autobuy_on_win';
+        $this->buy_strategy_name = 'autobuy_on_cci';
     }
 
     /**
@@ -81,7 +82,7 @@ class TestAutoStrategies extends Command
 
         echo "Before start we have " . $total_bitcoin_value . " Bitcoins !\n";
 
-        $candles = Candle_1m::select('close_time')->groupBy('close_time')->orderBy('close_time')->get();
+        $candles = Candle_5m::select('close_time')->groupBy('close_time')->orderBy('close_time')->get();
         $count = 0;
         $start_time = new \DateTime();
         foreach ($candles as $candle)
@@ -99,13 +100,6 @@ class TestAutoStrategies extends Command
             ]);
             
             echo "--------------\n";
-            
-            if ($count%100 == 0)
-            {
-                $end_time = new \DateTime();
-
-                file_put_contents('./storage/benchmark-nopdo.log', "Do " . $count . " candles in " . ($end_time->getTimestamp() - $start_time->getTimestamp()) . "s.\n");
-            }
         }
         
         $wallets = Wallet::where('broker', $this->broker_name)->where('available', '>', 0)->get();
@@ -118,7 +112,7 @@ class TestAutoStrategies extends Command
                 continue;
             }
             
-            $candle = Candle_1m::where('currencies', 'BTC-' . $wallet->currency)->orderBy('created_at', 'desc')->first();
+            $candle = Candle_5m::where('currencies', 'BTC-' . $wallet->currency)->orderBy('created_at', 'desc')->first();
 
             if (!$candle)
             {

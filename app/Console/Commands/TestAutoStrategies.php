@@ -8,6 +8,7 @@ use App\Business\BusinessTransaction;
 use App\Business\BusinessWallet;
 use App\Models\Transaction;
 use App\Models\Candle_1m;
+use App\Models\Candle_5m;
 use App\Models\Wallet;
 use Bittrex;
 
@@ -47,7 +48,7 @@ class TestAutoStrategies extends Command
         //On fixe les différents reglages
         $this->broker_name = 'bittrex';
         $this->sell_strategy_name = 'autosell_on_lost';
-        $this->buy_strategy_name = 'autobuy_on_win';
+        $this->buy_strategy_name = 'autobuy_on_cci';
     }
 
     /**
@@ -119,7 +120,7 @@ class TestAutoStrategies extends Command
                 continue;
             }
             
-            $candle = Candle_1m::where('currencies', 'BTC-' . $wallet->currency)->orderBy('created_at', 'desc')->first();
+            $candle = Candle_5m::where('currencies', 'BTC-' . $wallet->currency)->orderBy('created_at', 'desc')->first();
 
             if (!$candle)
             {

@@ -61,6 +61,7 @@ class CollectMarketData extends Command
             //VERIFIER AUCUN DELAIS RECEPTION DATA SINON DECLER DE QUELQUES SECONDES LA VERIFICATION
 
             if ($last_full_min->format("Y-m-d H:i") <= $last_candle->format("Y-m-d H:i")) {
+                sleep(10);
                 continue;
             }
 
@@ -121,7 +122,6 @@ class CollectMarketData extends Command
             foreach ($this->currencies as $market) {
                 $businessCandle->compute_candles_with_interval("BTC-" . $market, $last_candle, 5);
             }
-
         }
     }
 }

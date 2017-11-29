@@ -55,10 +55,10 @@ class AutobuyOnWin extends Command
         $this->force_minimum_order_size = true;
 
         //How much win need to be to take decision
-        $this->percent_win_to_buy = 0.05;
+        $this->percent_win_to_buy = 0.03;
 
         //How long must be the period of loosing 
-        $this->duration_win_to_buy = new \DateInterval('PT4M'); //2 min
+        $this->duration_win_to_buy = new \DateInterval('PT3M'); //2 min
 
         //How is the minimum unit coin value in satoshi to buy
         $this->minimum_unit_coin_value = 500;
@@ -93,7 +93,7 @@ class AutobuyOnWin extends Command
 
                 $market = 'BTC-' . $wallet->currency;
 
-                echo "SELL - Search transactions for market " . $market . "\n";
+                echo "BUY - Search transactions for market " . $market . "\n";
 
                 //Get the last complete sell or buy transaction for this strategy and wallet
                 $last_transaction = Transaction::where('currencies', $market)->
@@ -116,7 +116,7 @@ class AutobuyOnWin extends Command
                 }
                 else
                 {
-                    $last_transaction_date = new \DateTime($last_transaction->created_at);
+                    $last_transaction_date = new \DateTime($last_transaction->close_time);
 
                     //If the last transaction for this money and strategy is a buy, then we have not sell it for now, and we must not buy it again
                     if ($last_transaction->strategy == $this->strategy_name && $last_transaction->type == 'buy')
@@ -132,8 +132,12 @@ class AutobuyOnWin extends Command
                 }
 
                 //We get all candles on 1m since this date
-                //$candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('currencies', $market)->orderBy('close_time')->get();
-                $candles = Candle_1m::where('close_time', '>', $last_transaction_date)->where('close_time', '<', $max_date)->where('currencies', $market)->orderBy('close_time')->get();
+                $candles = Candle_1m::where('close_time', '>', $last_transaction_date)
+                                    ->where('close_time', '<', $max_date)
+                                    ->where('currencies', $market)
+                                    ->orderBy('close_time', 'desc')
+                                    ->limit(100)
+                                    ->get();
 
                 //We get the candle with the max close price for the period
                 $min_price = false;
@@ -157,7 +161,7 @@ class AutobuyOnWin extends Command
 
                 echo ($market . ' - ' . $min_price) . "\n";
 
-                $last_candle = $candles->last();
+                $last_candle = $candles->first();
 
                 if (!$last_candle)
                 {
@@ -260,7 +264,7 @@ class AutobuyOnWin extends Command
                 $transaction->broker = $this->broker_name;
 
                 $transaction->save();
-                
+
                 $business_wallet = new BusinessWallet($this->broker_name);
                 $business_wallet->register_buy($wallet['currency'], $quantity_to_buy);
                 $business_wallet->register_sell($wallet_btc['currency'], $quantity_btc_to_spend + $transaction_fees);

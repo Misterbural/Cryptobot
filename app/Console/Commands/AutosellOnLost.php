@@ -49,7 +49,7 @@ class AutosellOnLost extends Command
         $this->buy_strategy_name = 'autobuy_on_win';
         
         //How much the lost or win need to be to take decision
-        $this->percent_lost_to_sell = '0.02';
+        $this->percent_lost_to_sell = '0.05';
 
         //How long must be the period of loosing 
         $this->duration_lost_to_sell = new \DateInterval('PT2M'); //5 min
@@ -84,7 +84,7 @@ class AutosellOnLost extends Command
                 }
 
                 $market = 'BTC-' . $wallet->currency;
-                echo "Search transactions for market " . $market . "\n";
+                echo "SELL - Search transactions for market " . $market . "\n";
 
                 //Get the last complete sell or buy transaction for this strategy and wallet
                 $last_transaction = Transaction::where('currencies', $market)->

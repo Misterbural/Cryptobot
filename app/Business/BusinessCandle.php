@@ -103,7 +103,7 @@ class BusinessCandle {
 
 		$candles = Candle_1m::where('currencies', $market)
 		->where('open_time', '>=', $open_time)
-		->where('close_time', '<=', $close_time)
+		->where('open_time', '<=', $close_time)
 		->get();
 
 		if (!count($candles)) {

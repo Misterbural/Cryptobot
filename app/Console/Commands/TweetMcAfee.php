@@ -53,7 +53,7 @@ class TweetMcAfee extends Command
         //BTC to spend
         $invest = 0.01;
 
-        $bittrex_transaction = new BusinessTransaction('bittrex' ,'arbitration');
+        $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
 
         $twitterConnection = new StreamingBird('7TwekgBwMzCxJLQ8HE1MLkzQr', 'e3SmsqlIfx6Cu7egIZwogGJRa8DkS9oMlu6efEr2sy0Lrv4kSL', '848614492422451201-IV52SNG9UxAvAkIB8mQOE1rzTbk9CuI', 'GutB6U0SFZhMyLJ4QH2xR7Kre5lkzOaLx7luT7QGc48fy');
 

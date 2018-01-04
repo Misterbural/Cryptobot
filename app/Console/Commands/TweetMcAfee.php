@@ -50,17 +50,20 @@ class TweetMcAfee extends Command
      */
     public function handle()
     {
-        //BTC to spend
-        $invest = 0.01;
-
-        $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
-
         $twitterConnection = new StreamingBird('7TwekgBwMzCxJLQ8HE1MLkzQr', 'e3SmsqlIfx6Cu7egIZwogGJRa8DkS9oMlu6efEr2sy0Lrv4kSL', '848614492422451201-IV52SNG9UxAvAkIB8mQOE1rzTbk9CuI', 'GutB6U0SFZhMyLJ4QH2xR7Kre5lkzOaLx7luT7QGc48fy');
 
-        //id mcafee : 961445378
-        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['450094761'])->consume(
+        //BureauEliott 450094761
+        //officialmcafee : 961445378
+        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['961445378'])->consume(
             function ($tweet)
             {
+                //BTC to spend
+                $invest = 0.03;
+                $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
+
+                if (!array_key_exists("text", $tweet)) {
+                    return false;
+                }
                 $text = $tweet["text"];
 
                 if (stripos($text, "coin") === false) {
@@ -75,22 +78,25 @@ class TweetMcAfee extends Command
                     return false;
                 }
 
-                //s'assurer de l'extension de l'img
                 $img_url = $tweet["entities"]["media"][0]["media_url_https"];
                 $img_path = '/home/mcafee.jpg';
+
 
                 file_put_contents($img_path, file_get_contents($img_url)); 
 
                 $ocr = new TesseractOCR($img_path);
                 $text_img = $ocr->run();
 
-                preg_match('#\((.*?)\)#', $text_img, $match);
+                preg_match('#\(([^\)]*)\)#', $text_img, $match);
                 $currency = $match[1];
-                $market = 'BTC-' . $currency; 
+                $market = 'BTC-' . $currency;
 
                 $price_ask = $bittrex_transaction->get_market_ask_rate($market);
+                if(!$price_ask) {
+                    return false;
+                }
                 
-                $rate_buy = $price_ask + $price_ask * 0.1;
+                $rate_buy = round($price_ask + $price_ask * 0.1, 8);
                 $quantity = round($invest / $rate_buy, 8);
 
                 $order_id = $bittrex_transaction->buy($market, $quantity, $rate_buy);
@@ -104,7 +110,7 @@ class TweetMcAfee extends Command
                     $bittrex_transaction->cancel($order_id);
                 }
 
-                $rate_sell = $rate_buy + $rate_buy * 0.7;
+                $rate_sell = round($rate_buy + $rate_buy * 0.7, 8);
                 $order_id = $bittrex_transaction->sell($market, $quantity, $rate_sell);
 
                 sleep(55);
@@ -117,7 +123,7 @@ class TweetMcAfee extends Command
                 $bittrex_transaction->cancel($order_id);
                 $price_bid = $bittrex_transaction->get_market_bid_rate($market);
 
-                $rate_sell = $price_bid - $price_bid * 0.1;
+                $rate_sell = round($price_bid - $price_bid * 0.1, 8);
                 $order_id = $bittrex_transaction->sell($market, $quantity, $rate_sell);
                 return true;
             }

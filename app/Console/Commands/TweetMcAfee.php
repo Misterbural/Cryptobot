@@ -67,7 +67,7 @@ class TweetMcAfee extends Command
                     return false;
                 }
 
-                if (stripos($text, "week") === false || stripos($text, "day") === false) {
+                if (stripos($text, "week") === false && stripos($text, "day") === false) {
                     return false;
                 }
                 
@@ -84,7 +84,7 @@ class TweetMcAfee extends Command
                 $ocr = new TesseractOCR($img_path);
                 $text_img = $ocr->run();
 
-                preg_match('#\((.*?)\)#', $text, $match);
+                preg_match('#\((.*?)\)#', $text_img, $match);
                 $currency = $match[1];
                 $market = 'BTC-' . $currency; 
 

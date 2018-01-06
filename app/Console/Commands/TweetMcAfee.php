@@ -28,7 +28,7 @@ class TweetMcAfee extends Command
 
     /**
     * List of currencies for trading
-    * 
+    *
     * @var array
     */
     protected $currencies;
@@ -54,11 +54,11 @@ class TweetMcAfee extends Command
 
         //BureauEliott 450094761
         //officialmcafee : 961445378
-        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['961445378'])->consume(
+        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['450094761'])->consume(
             function ($tweet)
             {
                 //BTC to spend
-                $invest = 0.03;
+                $invest = 0.0015;
                 $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
 
                 if (!array_key_exists("text", $tweet)) {
@@ -73,7 +73,7 @@ class TweetMcAfee extends Command
                 if (stripos($text, "week") === false && stripos($text, "day") === false) {
                     return false;
                 }
-                
+
                 if (!array_key_exists("media", $tweet["entities"])) {
                     return false;
                 }
@@ -95,12 +95,15 @@ class TweetMcAfee extends Command
                 if(!$price_ask) {
                     return false;
                 }
-                
+
                 $rate_buy = round($price_ask + $price_ask * 0.1, 8);
                 $quantity = round($invest / $rate_buy, 8);
 
                 $order_id = $bittrex_transaction->buy($market, $quantity, $rate_buy);
 
+		if(!$order_id) {
+		    return false;
+		}
                 sleep(5);
 
                 $order = $bittrex_transaction->get_order($order_id);
@@ -111,7 +114,9 @@ class TweetMcAfee extends Command
                 }
 
                 $rate_sell = round($rate_buy + $rate_buy * 0.7, 8);
+		echo "HEELLLLLOOOOO";
                 $order_id = $bittrex_transaction->sell($market, $quantity, $rate_sell);
+		var_dump($order_id); die();
 
                 sleep(55);
 

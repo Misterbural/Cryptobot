@@ -82,7 +82,13 @@ class BusinessWallet {
 
         if (!$updateResult)
         {
-            return false;
+            DB::table('wallets')->insert([
+                'currency' => $currency,
+                'available' => $value,
+                'on_trade' => 0,
+                'to_keep' => 0,
+                'broker' => $this->broker_name,
+            ]);
         }
 
         if (!$percent_to_keep)

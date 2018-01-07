@@ -29,7 +29,7 @@ class TweetMcAfee extends Command
 
     /**
     * List of currencies for trading
-    * 
+    *
     * @var array
     */
     protected $currencies;
@@ -75,7 +75,7 @@ class TweetMcAfee extends Command
                 if (stripos($text, "week") === false && stripos($text, "day") === false) {
                     return false;
                 }
-                
+
                 if (!array_key_exists("media", $tweet["entities"])) {
                     return false;
                 }
@@ -97,11 +97,15 @@ class TweetMcAfee extends Command
                 if(!$price_ask) {
                     return false;
                 }
+
                 $rate_buy = round($price_ask + $price_ask * 0.1, 8);
                 $quantity = round($invest / $rate_buy, 8);
 
                 $order_id = $bittrex_transaction->buy($market, $quantity, $rate_buy);
 
+		if(!$order_id) {
+		    return false;
+		}
                 sleep(5);
 
                 $bittrex_transaction->validate_transaction($order_id);
@@ -112,6 +116,7 @@ class TweetMcAfee extends Command
                 }
 
                 $rate_sell = round($rate_buy + $rate_buy * 0.7, 8);
+
                 $order_id = $bittrex_transaction->sell($market, $quantity_filled, $rate_sell);
 
                 sleep(55);

@@ -25,6 +25,7 @@ class BrokerBittrex implements InterfaceBroker {
     public function buy ($market, $quantity, $rate)
     {
         $result = Bittrex::buyLimit($market, $quantity, $rate);
+
         if ($result['success'] == false)
         {
             return false;
@@ -43,9 +44,7 @@ class BrokerBittrex implements InterfaceBroker {
     public function sell ($market, $quantity, $rate)
     {
         $result = Bittrex::sellLimit($market, $quantity, $rate);
-	echo "Bonjour 1";
-	var_dump($result);
-	echo "Bonjour 2";
+
         if ($result['success'] == false)
         {
             return false;

@@ -172,6 +172,10 @@ class BusinessTransaction {
             return false;
         }
 
+        if ($order['actual_rate'] == null) {
+            $order['actual_rate'] = 0;
+        }
+
         //Maintenant faut faire tout le traitement sur les wallet et les transactions
         if ($transaction['type'] == 'buy')
         {
@@ -306,6 +310,10 @@ class BusinessTransaction {
             return false;
         }
 
+        if ($order['actual_rate'] == null) {
+            $order['actual_rate'] = 0;
+        }
+
         //Maintenant faut faire tout le traitement sur les wallet et les transactions
         if ($transaction['type'] == 'buy')
         {
@@ -314,10 +322,6 @@ class BusinessTransaction {
             $transaction->rate = $order['actual_rate'];
             $transaction->fees = $order['actual_fees'];
             $transaction->status = 'close';
-
-            if ($transaction->rate == null) {
-                $transaction->rate = 0;
-            }
 
             //echo "Transaction buy actual_rate = " . $order['actual_rate'] . " vs " . $transaction->rate . " actual fees = " . $order['actual_fees'] . " vs " . $transaction->fees . "\n";
 
@@ -349,10 +353,6 @@ class BusinessTransaction {
             $transaction->rate = $order['actual_rate'];
             $transaction->fees = $order['actual_fees'];
             $transaction->status = 'close';
-
-            if ($transaction->rate == null) {
-                $transaction->rate = 0;
-            }
             
             $transaction->save();
             

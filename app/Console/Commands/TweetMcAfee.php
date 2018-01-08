@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Business\BusinessTransaction;
 use App\Business\BusinessWallet;
+use App\Models\Wallet;
 use OwlyCode\StreamingBird\StreamReader;
 use OwlyCode\StreamingBird\StreamingBird;
 use thiagoalessio\TesseractOCR\TesseractOCR;
@@ -55,11 +56,11 @@ class TweetMcAfee extends Command
 
         //BureauEliott 450094761
         //officialmcafee : 961445378
-        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['450094761'])->consume(
+        $twitterConnection->createStreamReader(StreamReader::METHOD_FILTER)->setFollow(['961445378'])->consume(
             function ($tweet)
             {
                 //BTC to spend
-                $invest = 0.0011;
+                $invest = round(Wallet::where('broker', 'bittrex')->where('currency', 'BTC')->first()['available'] * 0.95, 8);
                 $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
                 $wallet = new BusinessWallet('bittrex');
 
@@ -90,8 +91,8 @@ class TweetMcAfee extends Command
 
                 preg_match('#\(([^\)]*)\)#', $text_img, $match);
                 $currency = $match[1];
+                $currency = "ADA";
                 $market = 'BTC-' . $currency;
-                //$market = 'BTC-FTC';
 
                 $price_ask = $bittrex_transaction->get_market_ask_rate($market);
                 if(!$price_ask) {
@@ -103,9 +104,10 @@ class TweetMcAfee extends Command
 
                 $order_id = $bittrex_transaction->buy($market, $quantity, $rate_buy);
 
-		if(!$order_id) {
-		    return false;
-		}
+                if(!$order_id) {
+		          return false;
+                }
+
                 sleep(5);
 
                 $bittrex_transaction->validate_transaction($order_id);

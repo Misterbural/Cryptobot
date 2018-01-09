@@ -1,0 +1,225 @@
+@extends('template')
+
+@section('title')
+    Peaks {{ $market }} - Cryptobot
+@endsection
+
+@section('content')
+    <h1>Peaks for market {{ $market }}</h1>
+     <div id="chartdiv" style="width: 640px; height: 400px;"></div>
+    @foreach ($peaks as $peak)
+        <div style="display: block;width: 500px;padding:20px;border: 1px solid black; border-radius:3px;margin:20px">
+            <strong>Peak N°{{ $loop->iteration }}</strong>
+            <ul>
+                @foreach ($peak as $candle)
+                    <li>{{ $candle->open_time }} - {{ $candle->close_price }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endforeach
+@endsection
+
+@section('scripts')
+    <script>
+        var chartData = JSON.parse('<?php echo $json_candles; ?>');
+        /*
+        var chart = AmCharts.makeChart( 'chartdiv', {
+            'type': 'stock',
+            'dataProvider': chartData,
+            'dataDateFormat': 'YYYY-MM-DD HH:NN:SS',
+            'categoryField': 'open_time',
+            'categoryAxis': {
+                'parseDate': true,
+                'equalSpacing': true,
+                'minPeriod': '5mm',
+                'groupToPeriod': ["10mm", "30mm", "hh", "DD", "WW", "MM", "YYYY"],
+                'maxSeries': 5,
+                'labelRotation': -45,
+                'dateFormats': [{"period":"fff","format":"JJ:NN:SS"},{"period":"ss","format":"JJ:NN:SS"},{"period":"mm","format":"JJ:NN"},{"period":"hh","format":"JJ:NN"},{"period":"DD","format":"MMM DD"},{"period":"WW","format":"MMM DD"},{"period":"MM","format":"MMM"},{"period":"YYYY","format":"YYYY"}],
+            },
+            'valueAxes': [{
+                'position': 'right',
+            }],
+            'theme': 'light',
+            'graphs': [{
+                'id': 'g1',
+                'type': 'candlestick',
+                'proCandlesticks': false,
+                'title': 'Price',
+                'balloonText': 'Open:<b>[[open]]</b><br>Low:<b>[[low]]</b><br>High:<b>[[high]]</b><br>Close:<b>[[close]]</b><br>',
+                'openField': 'open_price',
+                'closeField': 'close_price',
+                'lowField': 'min_price',
+                'highField': 'max_price',
+                'fillColors': '#2ecc71',
+                'lineColor': '#2ecc71',
+                'negativeFillColors': '#c0392b',
+                'negativeLineColor': '#c0392b',
+                'fillAlphas': 0.9,
+                'lineAlpha': 1,
+            }],
+            'chartScrollbar': {
+                'graph': 'g1',
+                'graphType': 'line',
+                'scrollbarHeight': 30,
+                'usePeriod': '5mm',
+            },
+            'chartCursor': {
+                'valueLineEnabled': true,
+                'valueLineBalloonEnabled': true,
+            },
+            
+        });
+        
+
+        chart.addListener( "rendered", zoomChart );
+        zoomChart();
+
+        // this method is called when chart is first inited as we listen for "dataUpdated" event
+        function zoomChart() {
+            // different zoom methods can be used - zoomToIndexes, zoomToDates, zoomToCategoryValues
+            chart.zoomToIndexes(chart.dataProvider.length - 60/5*24, chart.dataProvider.length - 1 );
+        }
+         */
+
+        /*
+        AmCharts.ready(function () {
+            var chart = new AmCharts.AmStockChart();
+
+            var dataSet = new AmCharts.DataSet();
+            dataSet.dataProvider = chartData;
+            dataSet.fieldMappings = [
+                {fromField: 'openField', toField: 'open_price'}, 
+                {fromField: 'closeField', toField: 'close_price'}, 
+                {fromField: 'lowField', toField: 'min_price'}, 
+                {fromField: 'highField', toField: 'max_price'}, 
+            ];
+            dataSet.categoryField = 'open_time';
+            chart.dataSets = [dataSet];
+
+            var stockPanel = new AmCharts.StockPanel();
+            chart.panels = [stockPanel];
+
+            var panelsSettings = new AmCharts.PanelsSettings();
+            panelsSettings.startDuration = 1;
+            chart.panelsSettings = panelsSettings;
+
+            var graph = new AmCharts.StockGraph();
+            graph.openField = 'open_price';
+            graph.closeField = 'close_price';
+            graph.lowField = 'low_price';
+            graph.highField = 'high_price';
+            graph.type = 'candlestick';
+            graph.title = '{{ $market }}'; 
+            graph.fillAlphas = 1;
+
+            stockPanel.addStockGraph(graph);
+
+            chart.write('chartdiv');
+        });
+        */
+var chartData = [];
+generateChartData();
+
+
+function generateChartData() {
+  var firstDate = new Date();
+  firstDate.setHours( 0, 0, 0, 0 );
+  firstDate.setDate( firstDate.getDate() - 2000 );
+
+  for ( var i = 0; i < 2000; i++ ) {
+    var newDate = new Date( firstDate );
+    newDate.setHours( 0, i, 0, 0 );
+
+    var open = Math.round( Math.random() * ( 30 ) + 100 );
+    var close = open + Math.round( Math.random() * ( 15 ) - Math.random() * 10 );
+
+    var low;
+    if ( open < close ) {
+      low = open - Math.round( Math.random() * 5 );
+    } else {
+      low = close - Math.round( Math.random() * 5 );
+    }
+
+    var high;
+    if ( open < close ) {
+      high = close + Math.round( Math.random() * 5 );
+    } else {
+      high = open + Math.round( Math.random() * 5 );
+    }
+
+    var volume = Math.round( Math.random() * ( 1000 + i ) ) + 100 + i;
+
+    var value = Math.round( Math.random() * ( 30 ) + 100 );
+
+    chartData[ i ] = ( {
+      "date": newDate,
+      "open": open,
+      "close": close,
+      "high": high,
+      "low": low,
+      "volume": volume,
+      "value": value
+    } );
+  }
+}
+        var chart = AmCharts.makeChart('chartdiv', {
+            type: 'stock',
+            theme: 'light',
+
+            categoryAxesSettings: {
+                'minPeriod': '5mm',
+            },
+    
+            dataSets: [{
+                'fieldMappings': [
+                    {fromField: 'openField', toField: 'open'}, 
+                    {fromField: 'closeField', toField: 'close'}, 
+                    {fromField: 'lowField', toField: 'low'}, 
+                    {fromField: 'highField', toField: 'high'}, 
+                    {fromField: 'value', toField: 'value'}, 
+                ],
+                
+                color: '#7f8da9',
+                dataProvider: chartData,
+                title: '{{ $market }}',
+                categoryField: 'date',
+            }],
+
+            panels: [{
+                title: 'Value',
+                showCategoryAxis: false,
+                percentHeight: 70,
+                valueAxes: [{
+                    dashLength: 5,
+                }],
+                categoryAxis: [{
+                    dashLength: 5,
+                }],
+
+                stockGraphs: [{
+                    type: "candlestick",
+                    id: "g1",
+                    openField: "open",
+                    closeField: "close",
+                    highField: "high",
+                    lowField: "low",
+                    valueField: "close",
+                    lineColor: "#7f8da9",
+                    fillColors: "#7f8da9",
+                    negativeLineColor: "#db4c3c",
+                    negativeFillColors: "#db4c3c",
+                    fillAlphas: 1,
+                    useDataSetColors: false,
+                    showBalloon: false,
+                }],
+
+                chartScrollbarSettings: {
+                    graph: 'g1',
+                    graphType: 'line',
+                    usePeriod: 'hh'
+                },
+            }],
+        });
+    </script>
+@endsection

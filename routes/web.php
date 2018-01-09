@@ -11,6 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'IndexController@index')->name('index');
+Route::get('/supportandresistance/peaks/{market}', 'SupportAndResistanceController@peaks')->name('supportandresistance.peaks');
+

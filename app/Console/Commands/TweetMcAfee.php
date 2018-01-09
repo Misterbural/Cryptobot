@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Business\BusinessTransaction;
+use App\Business\BusinessWallet;
+use App\Models\Wallet;
 use OwlyCode\StreamingBird\StreamReader;
 use OwlyCode\StreamingBird\StreamingBird;
 use thiagoalessio\TesseractOCR\TesseractOCR;
@@ -28,7 +30,7 @@ class TweetMcAfee extends Command
 
     /**
     * List of currencies for trading
-    * 
+    *
     * @var array
     */
     protected $currencies;
@@ -49,7 +51,7 @@ class TweetMcAfee extends Command
      * @return mixed
      */
     public function handle()
-    {
+    {           
         $twitterConnection = new StreamingBird('7TwekgBwMzCxJLQ8HE1MLkzQr', 'e3SmsqlIfx6Cu7egIZwogGJRa8DkS9oMlu6efEr2sy0Lrv4kSL', '848614492422451201-IV52SNG9UxAvAkIB8mQOE1rzTbk9CuI', 'GutB6U0SFZhMyLJ4QH2xR7Kre5lkzOaLx7luT7QGc48fy');
 
         //BureauEliott 450094761
@@ -58,8 +60,9 @@ class TweetMcAfee extends Command
             function ($tweet)
             {
                 //BTC to spend
-                $invest = 0.03;
+                $invest = round(Wallet::where('broker', 'bittrex')->where('currency', 'BTC')->first()['available'] * 0.95, 8);
                 $bittrex_transaction = new BusinessTransaction('bittrex' ,'mcafee');
+                $wallet = new BusinessWallet('bittrex');
 
                 if (!array_key_exists("text", $tweet)) {
                     return false;
@@ -73,14 +76,13 @@ class TweetMcAfee extends Command
                 if (stripos($text, "week") === false && stripos($text, "day") === false) {
                     return false;
                 }
-                
+
                 if (!array_key_exists("media", $tweet["entities"])) {
                     return false;
                 }
 
                 $img_url = $tweet["entities"]["media"][0]["media_url_https"];
                 $img_path = '/home/mcafee.jpg';
-
 
                 file_put_contents($img_path, file_get_contents($img_url)); 
 
@@ -89,34 +91,42 @@ class TweetMcAfee extends Command
 
                 preg_match('#\(([^\)]*)\)#', $text_img, $match);
                 $currency = $match[1];
+                $currency = "ADA";
                 $market = 'BTC-' . $currency;
 
                 $price_ask = $bittrex_transaction->get_market_ask_rate($market);
                 if(!$price_ask) {
                     return false;
                 }
-                
+
                 $rate_buy = round($price_ask + $price_ask * 0.1, 8);
                 $quantity = round($invest / $rate_buy, 8);
 
                 $order_id = $bittrex_transaction->buy($market, $quantity, $rate_buy);
 
+                if(!$order_id) {
+		          return false;
+                }
+
                 sleep(5);
 
-                $order = $bittrex_transaction->get_order($order_id);
+                $bittrex_transaction->validate_transaction($order_id);
+                $quantity_filled = $wallet->get_wallet_for_currency($currency)['available'];
 
-                $quantity = $order['actual_quantity'];
-                if ($quantity != $order['quantity']) {
+                if ($quantity != $quantity_filled) {
                     $bittrex_transaction->cancel($order_id);
                 }
 
                 $rate_sell = round($rate_buy + $rate_buy * 0.7, 8);
-                $order_id = $bittrex_transaction->sell($market, $quantity, $rate_sell);
+
+                $order_id = $bittrex_transaction->sell($market, $quantity_filled, $rate_sell);
 
                 sleep(55);
 
-                $order = $bittrex_transaction->get_order($order_id);
-                if ($order['actual_quantity'] == $order['quantity']) {
+                $bittrex_transaction->validate_transaction($order_id);
+                $quantity_not_sell = $wallet->get_wallet_for_currency($currency)['available'];
+
+                if ($quantity_not_sell == 0) {
                     return true;
                 }
 
@@ -125,6 +135,7 @@ class TweetMcAfee extends Command
 
                 $rate_sell = round($price_bid - $price_bid * 0.1, 8);
                 $order_id = $bittrex_transaction->sell($market, $quantity, $rate_sell);
+                $bittrex_transaction->validate_transaction($order_id);
                 return true;
             }
         );

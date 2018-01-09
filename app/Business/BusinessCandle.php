@@ -169,7 +169,7 @@ class BusinessCandle {
 
 		if ($interval == 30 && $close_time->format('i') % 60 == 59) {
 			$this->compute_candles_with_interval($market, $close_time, 60);
-		}
+        }
 
 		return true;
 	}

@@ -91,7 +91,6 @@ class TweetMcAfee extends Command
 
                 preg_match('#\(([^\)]*)\)#', $text_img, $match);
                 $currency = $match[1];
-                $currency = "ADA";
                 $market = 'BTC-' . $currency;
 
                 $price_ask = $bittrex_transaction->get_market_ask_rate($market);
